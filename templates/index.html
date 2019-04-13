@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div class="container">
+        {% for movie in context.movies %}
+
+        <div class="card-columns">
+            <div class="card">
+                <img class="card-img-top" src="{{ movie.poster_url }}">
+                <div class="card-body">
+                    <h4 class="card-title">{{ movie.title }} ({{ movie.year }})</h4>
+                    <p class="card-text">{{ movie.plot }}</p>
+                </div>
+            </div>
+        </div>
+
+        {% endfor %}
+</div>
+{% endblock %}
