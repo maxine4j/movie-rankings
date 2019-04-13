@@ -5,7 +5,7 @@ import os
 import requests
 from flask_dance.contrib.facebook import make_facebook_blueprint, facebook
 
-app = flask.Flask(__name__)
+app = flask.Flask(__name__, static_url_path='/static')
 app.secret_key = 'debug_key'
 blueprint = make_facebook_blueprint(
     client_id=os.environ.get('FACEBOOK_CLIENTID'),
@@ -13,6 +13,10 @@ blueprint = make_facebook_blueprint(
 )
 app.register_blueprint(blueprint, url_prefix='/login')
 data.init_db()
+
+
+def is_authenticated():
+    return 'user_id' in flask.session
 
 
 @app.route('/login')
@@ -37,7 +41,7 @@ def try_login_user():
 @app.route('/')
 def index():
     try_login_user()
-    if 'user_id' not in flask.session:
+    if not is_authenticated():
         return flask.redirect(flask.url_for('facebook.login'))
     else:
         user_name = data.get_user(flask.session['user_id'])[1]
@@ -51,9 +55,14 @@ def index():
         })
 
 
-@app.route('/api/1/vote/<movie_id>/<user_token>')
-def vote(movie_id, user_token):
-    res, msg = data.add_vote(user_token, movie_id)
+@app.route('/api/1/vote/<movie_id>')
+def vote(movie_id):
+    if not is_authenticated():
+        return json.dumps({
+            'success': False,
+            'message': 'You are not logged in'
+        })
+    res, msg = data.add_vote(flask.session['user_id'], movie_id)
     return json.dumps({
         'success': res,
         'message': msg

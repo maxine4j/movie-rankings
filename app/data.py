@@ -73,12 +73,12 @@ def get_vote_count(movie_id):
         ''', [movie_id])
 
 
-def add_vote(user_token, movie_id):
+def add_vote(user_id, movie_id):
     cur = db.cursor()
     cur.execute('''
         INSERT OR REPLACE INTO votes(user_id, movie_id)
         VALUES (?, ?);
-        ''', [user_token, movie_id])
+        ''', [user_id, movie_id])
     db.commit()
     return True, 'Successfully added vote'
 
