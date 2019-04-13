@@ -10,7 +10,7 @@
                     <div class="card-body">
                         <h4 class="card-title">{{ movie.title }} ({{ movie.year }})</h4>
                         <p class="card-text">{{ movie.overview }}</p>
-                        <button onclick="onVoteButtonClick({{ movie.id }})">👍</button>
+                        <button class="btn btn-primary btn-block" onclick="onVoteButtonClick({{ movie.id }})">Vote +1</button>
                     </div>
                 </div>
             </div>

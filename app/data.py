@@ -27,10 +27,12 @@ def init_db():
         );
     ''')
     db.execute('''
-        CREATE TABLE IF NOT EXISTS votes (
+            CREATE TABLE IF NOT EXISTS votes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER,
             movie_id INTEGER,
+            
+            UNIQUE(user_id, movie_id) ON CONFLICT FAIL
             
             CONSTRAINT fk_users
             FOREIGN KEY (user_id)

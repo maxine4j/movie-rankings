@@ -18,10 +18,13 @@
               <li class="nav-item">
                 <a class="nav-link" href="#">Leader Board</a>
               </li>
-              <li class="nav-item">
-                <a class="nav-link disabled" href="#">Disabled</a>
-              </li>
             </ul>
+            <div>
+                <p style="margin: 1rem;">{{ context.user.name }}</p>
+            </div>
+            <div class="img-container" style="margin-right: 0.5rem;">
+                <img src="{{ context.user.avatar_url }}" style="border-radius: 100rem;">
+            </div>
             <form class="form-inline my-2 my-lg-0">
               <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
               <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
