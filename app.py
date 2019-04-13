@@ -42,11 +42,12 @@ def index():
     else:
         user_name = data.get_user(flask.session['user_id'])[1]
         movies = data.get_all_movies()
+        movies.sort(key=lambda x: -x['popularity'])
         return flask.render_template('index.html', context={
             'user': {
                 'username': user_name
             },
-            'movies': movies
+            'movies': movies[:50]
         })
 
 
