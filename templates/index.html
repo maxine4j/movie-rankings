@@ -2,17 +2,18 @@
 
 {% block body %}
 <div class="container">
-    <div class="card-columns">
-        {% for movie in context.movies %}
-        <div class="card p-2">
-            <img class="card-img-top " src="https://image.tmdb.org/t/p/w600_and_h900_bestv2{{ movie.poster_url }}">
-            <div class="card-body">
-                <h4 class="card-title">{{ movie.title }} ({{ movie.year }})</h4>
-                <p class="card-text">{{ movie.overview }}</p>
+        <div class="row">
+            {% for movie in context.movies %}
+            <div class="col-sm-4">
+                <div class="card p-2" >
+                    <img class="card-img-top " src="https://image.tmdb.org/t/p/w600_and_h900_bestv2{{ movie.poster_url }}">
+                    <div class="card-body">
+                        <h4 class="card-title">{{ movie.title }} ({{ movie.year }})</h4>
+                        <p class="card-text">{{ movie.overview }}</p>
+                    </div>
+                </div>
             </div>
+            {% endfor %}
         </div>
-         <div class="w-100 d-none d-sm-block d-md-none"><!-- wrap every 2 on sm--></div>
-        {% endfor %}
-    </div>
 </div>
 {% endblock %}
