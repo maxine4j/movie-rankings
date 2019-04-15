@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 
-{% block title %}Home{% endblock %}
+{% block title %}{{ context.search_query }}{% endblock %}
 
 {% block body %}
 <div class="container">
     <div class="home-header-container">
         <div class="home-header">
-            <h1>Popular Movies on <a href="https://www.themoviedb.org/" target="_blank">The Movie Database</a></h1>
+            <h1>Results for "{{ context.search_query }}"</a></h1>
         </div>
     </div>
     <div class="row">

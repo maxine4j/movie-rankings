@@ -59,7 +59,7 @@ def view_index():
     if not is_authenticated():
         return flask.redirect(flask.url_for('facebook.login'))
     else:
-        movies = data.get_all_movies()
+        movies = data.get_popular_movies()
         movies = data.prepare_movie_list(movies, get_authed_user_id())
         return flask.render_template('index.html', context={
             'user': get_user_context(get_authed_user_id()),
@@ -73,7 +73,7 @@ def view_search():
     terms = term_str.split(' ')
     movies = data.search_movies(terms)
     movies = data.prepare_movie_list(movies, get_authed_user_id())
-    return flask.render_template('index.html', context={
+    return flask.render_template('search.html', context={
         'user': get_user_context(get_authed_user_id()),
         'movies': movies[:50],
         'search_query': term_str
@@ -96,7 +96,7 @@ def view_user(user_id):
 
 @app.route('/rankings')
 def view_rankings():
-    movies = data.get_all_movies()
+    movies = data.get_top_favourited_movies()
     movies = data.prepare_movie_list(movies, get_authed_user_id())
     return flask.render_template('rankings.html', context={
         'user': get_user_context(get_authed_user_id()),
@@ -104,16 +104,16 @@ def view_rankings():
     })
 
 
-@app.route('/api/1/vote/<movie_id>')
-def api_toggle_vote(movie_id):
+@app.route('/api/1/favourite/<movie_id>')
+def api_toggle_favourite(movie_id):
     if not is_authenticated():
         return json.dumps({
             'success': False,
             'message': 'You are not logged in'
         })
-    vote_status = data.toggle_vote(flask.session['user_id'], movie_id)
+    favourite_status = data.toggle_favourite(flask.session['user_id'], movie_id)
     return json.dumps({
-        'vote': vote_status,
+        'favourite': favourite_status,
     })
 
 

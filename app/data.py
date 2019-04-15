@@ -27,7 +27,7 @@ def init_db():
         );
     ''')
     db.execute('''
-            CREATE TABLE IF NOT EXISTS votes (
+            CREATE TABLE IF NOT EXISTS favourites (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER,
             movie_id INTEGER,
@@ -43,13 +43,63 @@ def init_db():
             REFERENCES movies (id)
         );
     ''')
+    db.execute('''
+            CREATE TABLE IF NOT EXISTS polls (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                creator_user_id INTEGER NOT NULL,
+                description TEXT,
+                
+                CONSTRAINT fk_users
+                FOREIGN KEY (creator_user_id)
+                REFERENCES users (id)
+            );
+        ''')
+    db.execute('''
+            CREATE TABLE IF NOT EXISTS poll_options (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                poll_id INTEGER,
+                movie_id INTEGER,
+                
+                UNIQUE(poll_id, movie_id) ON CONFLICT FAIL
+                
+                CONSTRAINT fk_polls
+                FOREIGN KEY (poll_id)
+                REFERENCES polls (id),
+                
+                CONSTRAINT fk_movies
+                FOREIGN KEY (movie_id)
+                REFERENCES movies (id)
+            );
+        ''')
+    db.execute('''
+                CREATE TABLE IF NOT EXISTS poll_votes (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    poll_id INTEGER,
+                    movie_id INTEGER,
+                    user_id INTEGER,
+
+                    UNIQUE(poll_id, user_id) ON CONFLICT REPLACE
+
+                    CONSTRAINT fk_polls
+                    FOREIGN KEY (poll_id)
+                    REFERENCES polls (id),
+
+                    CONSTRAINT fk_movies
+                    FOREIGN KEY (movie_id)
+                    REFERENCES movies (id)
+                    
+                    CONSTRAINT fk_users
+                    FOREIGN KEY (user_id)
+                    REFERENCES users (id)
+                );
+            ''')
     db.commit()
 
 
 def get_user_fav_movies(user_id):
     cur = db.cursor()
     cur.execute('''
-        SELECT * FROM movies JOIN votes ON movies.id = votes.movie_id WHERE votes.user_id = ?;
+        SELECT * FROM movies JOIN favourites ON movies.id = favourites.movie_id WHERE favourites.user_id = ?;
         ''', [user_id])
     all_res = cur.fetchall()
     movies = []
@@ -89,42 +139,33 @@ def register_user(facebook_id, facebook_name):
         return False, 'User already registered'
 
 
-def get_vote_count(movie_id):
+def add_favourite(user_id, movie_id):
     cur = db.cursor()
     cur.execute('''
-        SELECT COUNT(*) FROM votes
-        WHERE movie_id = ?;
-        ''', [movie_id])
-
-
-def add_vote(user_id, movie_id):
-    cur = db.cursor()
-    cur.execute('''
-        INSERT OR REPLACE INTO votes(user_id, movie_id)
+        INSERT OR REPLACE INTO favourites(user_id, movie_id)
         VALUES (?, ?);
         ''', [user_id, movie_id])
     db.commit()
-    return True, 'Successfully added vote'
 
 
-def remove_vote(user_id, movie_id):
+def remove_favourite(user_id, movie_id):
     cur = db.cursor()
     cur.execute('''
-        DELETE FROM votes
+        DELETE FROM favourites
         WHERE user_id = ? AND movie_id = ?;
         ''', [user_id, movie_id])
     db.commit()
 
 
-def toggle_vote(user_id, movie_id):
+def toggle_favourite(user_id, movie_id):
     cur = db.cursor()
-    cur.execute('SELECT * FROM votes WHERE movie_id = ? AND user_id = ? LIMIT 1;', [movie_id, user_id])
+    cur.execute('SELECT * FROM favourites WHERE movie_id = ? AND user_id = ? LIMIT 1;', [movie_id, user_id])
     res = cur.fetchone()
     if res:
-        remove_vote(user_id, movie_id)
+        remove_favourite(user_id, movie_id)
         return False
     else:
-        add_vote(user_id, movie_id)
+        add_favourite(user_id, movie_id)
         return True
 
 
@@ -168,11 +209,19 @@ def build_movie_list(sql_movies):
 
 
 def search_movies(terms):
-    sql = 'SELECT * FROM movies WHERE title LIKE ? '
+    sql = '''
+        SELECT movies.*, COUNT(favourites.movie_id) as fav_count 
+        FROM movies LEFT JOIN favourites ON movies.id = favourites.movie_id
+        WHERE title LIKE ? 
+        '''
     if len(terms) > 1:
         for i in range(len(terms) - 1):
             sql += 'AND title LIKE ? '
-    sql += 'LIMIT 50;'
+    sql += '''
+        GROUP BY movies.id
+        ORDER BY popularity DESC
+        LIMIT 50;
+    '''
     cur = db.cursor()
     for i in range(len(terms)):
         terms[i] = '%' + terms[i] + '%'
@@ -180,11 +229,35 @@ def search_movies(terms):
     return build_movie_list(cur.fetchall())
 
 
+def get_top_favourited_movies():
+    cur = db.cursor()
+    cur.execute('''
+        SELECT movies.*, COUNT(favourites.movie_id) as fav_count 
+        FROM movies LEFT JOIN favourites ON movies.id = favourites.movie_id
+        GROUP BY movies.id
+        ORDER BY fav_count DESC, vote_count / 1000 * vote_average DESC
+        LIMIT 50;
+        ''')
+    return build_movie_list(cur.fetchall())
+
+
+def get_popular_movies():
+    cur = db.cursor()
+    cur.execute('''
+        SELECT movies.*, COUNT(favourites.movie_id) as fav_count 
+        FROM movies LEFT JOIN favourites ON movies.id = favourites.movie_id
+        GROUP BY movies.id
+        ORDER BY popularity DESC
+        LIMIT 50;
+        ''')
+    return build_movie_list(cur.fetchall())
+
+
 def get_all_movies():
     cur = db.cursor()
     cur.execute('''
-        SELECT movies.*, COUNT(votes.movie_id) as fav_count 
-        FROM movies LEFT JOIN votes ON movies.id = votes.movie_id
+        SELECT movies.*, COUNT(favourites.movie_id) as fav_count 
+        FROM movies LEFT JOIN favourites ON movies.id = favourites.movie_id
         GROUP BY movies.id
         ORDER BY fav_count DESC, vote_count / 1000 * vote_average DESC
         LIMIT 50;
