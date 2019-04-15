@@ -38,24 +38,43 @@ def try_login_user():
         flask.session['user_id'] = fb_json['id']
 
 
+def get_user():
+    user_name = data.get_user(flask.session['user_id'])[1]
+    res = requests.get(
+        'https://graph.facebook.com/v3.2/' + flask.session['user_id'] + '/picture?redirect=false&access_token=' +
+        facebook.token['access_token'])
+    avatar_url = "https://i.imgur.com/IGUApaz.jpg"
+    if res.ok:
+        avatar_url = res.json()['data']['url']
+    return {
+        'name': user_name,
+        'avatar_url': avatar_url
+    }
+
+
 @app.route('/')
 def index():
     try_login_user()
     if not is_authenticated():
         return flask.redirect(flask.url_for('facebook.login'))
     else:
-        user_name = data.get_user(flask.session['user_id'])[1]
-        res = requests.get('https://graph.facebook.com/v3.2/'+flask.session['user_id']+'/picture?redirect=false&access_token=' + facebook.token['access_token'])
-        avatar_url = "https://i.imgur.com/IGUApaz.jpg"
-        if res.ok:
-            avatar_url = res.json()['data']['url']
         movies = data.get_all_movies()
         movies.sort(key=lambda x: -x['popularity'])
         return flask.render_template('index.html', context={
-            'user': {
-                'name': user_name,
-                'avatar_url': avatar_url
-            },
+            'user': get_user(),
+            'movies': movies[:50]
+        })
+
+
+@app.route('/search', methods=['POST', 'GET'])
+def search():
+    if flask.request.method == 'POST':
+        result = flask.request.form
+        term_str = result['terms']
+        terms = term_str.split(' ')
+        movies = data.search_movies(terms)
+        return flask.render_template('index.html', context={
+            'user': get_user(),
             'movies': movies[:50]
         })
 
