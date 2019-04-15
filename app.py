@@ -20,7 +20,7 @@ def is_authenticated():
 
 
 @app.route('/login')
-def login():
+def view_login():
     return flask.redirect(flask.url_for('facebook.login'))
 
 
@@ -53,7 +53,7 @@ def get_user():
 
 
 @app.route('/')
-def index():
+def view_index():
     try_login_user()
     if not is_authenticated():
         return flask.redirect(flask.url_for('facebook.login'))
@@ -67,7 +67,7 @@ def index():
 
 
 @app.route('/search', methods=['POST', 'GET'])
-def search():
+def view_search():
     if flask.request.method == 'POST':
         result = flask.request.form
         term_str = result['terms']
@@ -80,7 +80,7 @@ def search():
 
 
 @app.route('/api/1/vote/<movie_id>')
-def vote(movie_id):
+def api_vote(movie_id):
     if not is_authenticated():
         return json.dumps({
             'success': False,
@@ -94,7 +94,7 @@ def vote(movie_id):
 
 
 @app.route('/api/1/all/movies')
-def get_all_movies():
+def api_get_all_movies():
     data.get_all_movies()
 
 
