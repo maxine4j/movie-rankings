@@ -1,0 +1,16 @@
+.btn-fav-false::after {
+    content: "Add to favourites";
+}
+
+.btn-fav-true {
+    color: red;
+}
+
+.btn-fav-true::after {
+    content: "Remove from favourites";
+}
+
+.navbar {
+    padding-right: 20%;
+    padding-left: 20%;
+}

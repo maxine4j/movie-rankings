@@ -46,6 +46,19 @@ def init_db():
     db.commit()
 
 
+def get_user_fav_movies(user_id):
+    cur = db.cursor()
+    cur.execute('''
+        SELECT * FROM movies JOIN votes ON movies.id = votes.movie_id WHERE votes.user_id = ?;
+        ''', [user_id])
+    all_res = cur.fetchall()
+    movies = []
+    for res in all_res:
+        movie = build_movie(res)
+        movies.append(movie)
+    return movies
+
+
 def get_user(user_id):
     cur = db.cursor()
     cur.execute('''
@@ -85,13 +98,25 @@ def add_vote(user_id, movie_id):
     return True, 'Successfully added vote'
 
 
-def remove_vote(user_token, movie_id):
+def remove_vote(user_id, movie_id):
     cur = db.cursor()
     cur.execute('''
         DELETE FROM votes
-        WHERE user_id = ? AND movie_id = ? LIMIT 1;
-        ''', [user_token, movie_id])
+        WHERE user_id = ? AND movie_id = ?;
+        ''', [user_id, movie_id])
     db.commit()
+
+
+def toggle_vote(user_id, movie_id):
+    cur = db.cursor()
+    cur.execute('SELECT * FROM votes WHERE movie_id = ? AND user_id = ? LIMIT 1;', [movie_id, user_id])
+    res = cur.fetchone()
+    if res:
+        remove_vote(user_id, movie_id)
+        return False
+    else:
+        add_vote(user_id, movie_id)
+        return True
 
 
 def build_movie(sql_movie):
@@ -111,6 +136,25 @@ def build_movie(sql_movie):
     }
 
 
+def prepare_movie_list(movies, current_user_id):
+    # marks movies as favourited for the logged in user
+    user_favs = get_user_fav_movies(current_user_id)
+    for movie in movies:
+        movie['favourite'] = False
+        for fav in user_favs:
+            if fav['id'] == movie['id']:
+                movie['favourite'] = True
+                break
+    return movies
+
+
+def build_movie_list(sql_movies):
+    movies = []
+    for res in sql_movies:
+        movies.append(build_movie(res))
+    return movies
+
+
 def search_movies(terms):
     sql = 'SELECT * FROM movies WHERE title LIKE ? '
     if len(terms) > 1:
@@ -121,11 +165,7 @@ def search_movies(terms):
     for i in range(len(terms)):
         terms[i] = '%' + terms[i] + '%'
     cur.execute(sql, terms)
-    all_res = cur.fetchall()
-    movies = []
-    for res in all_res:
-        movies.append(build_movie(res))
-    return movies
+    return build_movie_list(cur.fetchall())
 
 
 def get_all_movies():
@@ -133,8 +173,5 @@ def get_all_movies():
     cur.execute('''
         SELECT * FROM movies;
         ''')
-    all_res = cur.fetchall()
-    movies = []
-    for res in all_res:
-        movies.append(build_movie(res))
-    return movies
+    return build_movie_list(cur.fetchall())
+
