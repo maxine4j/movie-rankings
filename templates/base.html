@@ -26,8 +26,8 @@
                 <img src="{{ context.user.avatar_url }}" style="border-radius: 100rem;">
             </div>
         </a>
-        <form class="form-inline my-2 my-lg-0" action="/search" method="POST">
-            <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search" name="terms">
+        <form class="form-inline my-2 my-lg-0" action="/search" method="GET">
+            <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search" name="q" value="{{ context.search_query }}">
             <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
         </form>
     </div>

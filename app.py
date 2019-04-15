@@ -67,18 +67,17 @@ def view_index():
         })
 
 
-@app.route('/search', methods=['POST', 'GET'])
+@app.route('/search')
 def view_search():
-    if flask.request.method == 'POST':
-        result = flask.request.form
-        term_str = result['terms']
-        terms = term_str.split(' ')
-        movies = data.search_movies(terms)
-        movies = data.prepare_movie_list(movies, get_authed_user_id())
-        return flask.render_template('index.html', context={
-            'user': get_user_context(),
-            'movies': movies[:50]
-        })
+    term_str = flask.request.args.get('q')
+    terms = term_str.split(' ')
+    movies = data.search_movies(terms)
+    movies = data.prepare_movie_list(movies, get_authed_user_id())
+    return flask.render_template('index.html', context={
+        'user': get_user_context(),
+        'movies': movies[:50],
+        'search_query': term_str
+    })
 
 
 @app.route('/user/<user_id>')
