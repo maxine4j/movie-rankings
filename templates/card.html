@@ -2,6 +2,9 @@
     <img class="card-img-top " src="https://image.tmdb.org/t/p/w600_and_h900_bestv2{{ movie.poster_url }}">
     <div class="card-body">
         <h4 class="card-title">{{ movie.title }} ({{ movie.year }})</h4>
+        {% if movie.fav_count %}
+        <span>❤</span><span id="fav-counter-{{ movie.id }}">{{ movie.fav_count }}</span>
+        {% endif %}
         <p class="card-text">{{ movie.overview }}</p>
         <button id="btn-fav-{{ movie.id }}" class="btn btn-block {% if movie.favourite %} btn-fav-true btn-outline-danger {% else %} btn-fav-false btn-primary {% endif %}" onclick="onVoteButtonClick({{ movie.id }})"></button>
     </div>

@@ -17,13 +17,13 @@
                 <a class="nav-link" href="/">Home</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">Rankings</a>
+                <a class="nav-link" href="/rankings">Rankings</a>
             </li>
         </ul>
         <a href="/user/{{ context.user.id }}" class="nav-link" style="display: flex;">
             <p class="nav-item nav-link" >{{ context.user.name }}</p>
-            <div class="img-container" style="margin-right: 0.5rem;">
-                <img src="{{ context.user.avatar_url }}" style="border-radius: 100rem;">
+            <div class="nav-img-container">
+                <img src="{{ context.user.avatar_url }}">
             </div>
         </a>
         <form class="form-inline my-2 my-lg-0" action="/search" method="GET">

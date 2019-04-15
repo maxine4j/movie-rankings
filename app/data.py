@@ -54,9 +54,15 @@ def get_user_fav_movies(user_id):
     all_res = cur.fetchall()
     movies = []
     for res in all_res:
-        movie = build_movie(res)
-        movies.append(movie)
+        movies.append(build_movie(res))
     return movies
+
+
+def build_user(sql_user):
+    return {
+        'id': sql_user[0],
+        'name': sql_user[1],
+    }
 
 
 def get_user(user_id):
@@ -64,7 +70,10 @@ def get_user(user_id):
     cur.execute('''
         SELECT * FROM users WHERE id = ? LIMIT 1;
         ''', [user_id])
-    return cur.fetchone()
+    res = cur.fetchone()
+    if res is None:
+        return None
+    return build_user(res)
 
 
 def register_user(facebook_id, facebook_name):
@@ -120,7 +129,7 @@ def toggle_vote(user_id, movie_id):
 
 
 def build_movie(sql_movie):
-    return {
+    movie = {
         'id': sql_movie[0],
         'title': sql_movie[1],
         'release_date': sql_movie[2],
@@ -134,6 +143,9 @@ def build_movie(sql_movie):
         'vote_average': sql_movie[9],
         'popularity': sql_movie[10],
     }
+    if len(sql_movie) >= 12:
+        movie['fav_count'] = sql_movie[11]
+    return movie
 
 
 def prepare_movie_list(movies, current_user_id):
@@ -171,7 +183,11 @@ def search_movies(terms):
 def get_all_movies():
     cur = db.cursor()
     cur.execute('''
-        SELECT * FROM movies;
+        SELECT movies.*, COUNT(votes.movie_id) as fav_count 
+        FROM movies LEFT JOIN votes ON movies.id = votes.movie_id
+        GROUP BY movies.id
+        ORDER BY fav_count DESC, vote_count / 1000 * vote_average DESC
+        LIMIT 50;
         ''')
     return build_movie_list(cur.fetchall())
 

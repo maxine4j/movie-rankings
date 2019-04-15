@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div class="container">
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>Title</th>
+            <th>Year</th>
+            <th>Overview</th>
+            <th>Favourites</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for i in range(context.movies|length) %}
+        <tr>
+            <th scope="row">{{ i + 1 }}</th>
+            <td>{{ context.movies[i].title }}</td>
+            <td>{{ context.movies[i].year }}</td>
+            <td title="{{ context.movies[i].overview }}">{{ context.movies[i].overview|truncate(80) }}</td>
+            <td>{{ context.movies[i].fav_count }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

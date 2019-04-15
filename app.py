@@ -28,7 +28,7 @@ def try_login_user():
         # ask FB for account ID
         res = requests.get('https://graph.facebook.com/me?access_token=' + facebook.token['access_token'])
         fb_json = res.json()
-        # try and get the use from out local DB
+        # try and get the user from out local DB
         user = data.get_user(fb_json['id'])
         # if we havent seen this user before, register them
         if not user:
@@ -37,18 +37,19 @@ def try_login_user():
         flask.session['user_id'] = fb_json['id']
 
 
-def get_user_context():
-    user_name = data.get_user(flask.session['user_id'])[1]
-    res = requests.get(
-        'https://graph.facebook.com/v3.2/' + flask.session['user_id'] + '/picture?redirect=false&access_token=' +
-        facebook.token['access_token'])
+def get_user_context(user_id):
+    user = data.get_user(user_id)
+    if user is None:
+        return None
+    # avatar
+    res = requests.get('https://graph.facebook.com/v3.2/' + str(user['id']) + '/picture?type=large&redirect=false&access_token=' + facebook.token['access_token'])
     avatar_url = "https://i.imgur.com/IGUApaz.jpg"
     if res.ok:
         avatar_url = res.json()['data']['url']
     return {
-        'name': user_name,
+        'name': user['name'],
         'avatar_url': avatar_url,
-        'id': flask.session['user_id']
+        'id': user['id']
     }
 
 
@@ -60,9 +61,8 @@ def view_index():
     else:
         movies = data.get_all_movies()
         movies = data.prepare_movie_list(movies, get_authed_user_id())
-        movies.sort(key=lambda x: -x['popularity'])
         return flask.render_template('index.html', context={
-            'user': get_user_context(),
+            'user': get_user_context(get_authed_user_id()),
             'movies': movies[:50]
         })
 
@@ -74,7 +74,7 @@ def view_search():
     movies = data.search_movies(terms)
     movies = data.prepare_movie_list(movies, get_authed_user_id())
     return flask.render_template('index.html', context={
-        'user': get_user_context(),
+        'user': get_user_context(get_authed_user_id()),
         'movies': movies[:50],
         'search_query': term_str
     })
@@ -84,8 +84,22 @@ def view_search():
 def view_user(user_id):
     movies = data.get_user_fav_movies(user_id)
     movies = data.prepare_movie_list(movies, get_authed_user_id())
+    target_user = get_user_context(user_id)
+    if target_user is None:
+        return flask.abort(404)
     return flask.render_template('profile.html', context={
-        'user': get_user_context(),
+        'user': get_user_context(get_authed_user_id()),
+        'target_user': target_user,
+        'movies': movies[:50]
+    })
+
+
+@app.route('/rankings')
+def view_rankings():
+    movies = data.get_all_movies()
+    movies = data.prepare_movie_list(movies, get_authed_user_id())
+    return flask.render_template('rankings.html', context={
+        'user': get_user_context(get_authed_user_id()),
         'movies': movies[:50]
     })
 
