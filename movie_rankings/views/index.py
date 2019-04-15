@@ -8,7 +8,6 @@ app_index = flask.Blueprint('app_index', __name__)
 
 @app_index.route('/')
 def view_index():
-    # TODO: logged out view
     # prompt the user to log in with facebook oauth2
     auth.try_login_user()
     # get movie db popular movies

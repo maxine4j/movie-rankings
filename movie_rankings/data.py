@@ -97,6 +97,7 @@ def init_db():
 
 
 def build_user(sql_user):
+    # build a user dict from the supplied query result
     return {
         'id': sql_user[0],
         'name': sql_user[1],
@@ -104,6 +105,7 @@ def build_user(sql_user):
 
 
 def get_user(user_id):
+    # returns a dict representing the user with the supplied id
     cur = db.cursor()
     cur.execute('''
         SELECT * FROM users WHERE id = ? LIMIT 1;
@@ -115,6 +117,7 @@ def get_user(user_id):
 
 
 def register_user(facebook_id, facebook_name):
+    # registers a new facebook user
     cur = db.cursor()
     try:
         cur.execute('''
@@ -128,6 +131,7 @@ def register_user(facebook_id, facebook_name):
 
 
 def add_favourite(user_id, movie_id):
+    # adds a favourite for a given movie/user
     cur = db.cursor()
     cur.execute('''
         INSERT OR REPLACE INTO favourites(user_id, movie_id)
@@ -137,6 +141,7 @@ def add_favourite(user_id, movie_id):
 
 
 def remove_favourite(user_id, movie_id):
+    # removes a favourite for a given movie/user
     cur = db.cursor()
     cur.execute('''
         DELETE FROM favourites
@@ -146,6 +151,7 @@ def remove_favourite(user_id, movie_id):
 
 
 def toggle_favourite(user_id, movie_id):
+    # toggles a favourite for a given movie/user
     cur = db.cursor()
     cur.execute('SELECT * FROM favourites WHERE movie_id = ? AND user_id = ? LIMIT 1;', [movie_id, user_id])
     res = cur.fetchone()
@@ -158,6 +164,7 @@ def toggle_favourite(user_id, movie_id):
 
 
 def get_fav_movies(user_id):
+    # returns all movies favourited by the given user id
     fav_movies = []
     if user_id is not None:
         cur = db.cursor()
@@ -172,6 +179,8 @@ def get_fav_movies(user_id):
 
 
 def flag_fav_movies(movies, current_user_id=None):
+    # adds a flag to each movie dict in the list movies indicating whether the current user has favourited each movie
+    # used to set initial state of favourite/remove favourite button on movie cards
     user_favs = get_fav_movies(current_user_id)
     for movie in movies:
         movie['favourite'] = False
@@ -183,6 +192,7 @@ def flag_fav_movies(movies, current_user_id=None):
 
 
 def build_movie(sql_movie):
+    # builds a movie dict from query results
     movie = {
         'id': sql_movie[0],
         'title': sql_movie[1],
@@ -202,6 +212,7 @@ def build_movie(sql_movie):
 
 
 def build_movie_list(sql_movies, current_user_id=None):
+    # builds a list of movie dicts from query results
     movies = []
     for res in sql_movies:
         movies.append(build_movie(res))
@@ -209,6 +220,7 @@ def build_movie_list(sql_movies, current_user_id=None):
 
 
 def search_movies(terms, current_user_id=None):
+    # searches movies by title using SQL LIKE on each term
     sql = '''
         SELECT movies.*, COUNT(favourites.movie_id) as fav_count 
         FROM movies LEFT JOIN favourites ON movies.id = favourites.movie_id
@@ -230,6 +242,7 @@ def search_movies(terms, current_user_id=None):
 
 
 def get_top_favourited_movies(current_user_id=None):
+    # returns the top favourited movies by our users
     cur = db.cursor()
     cur.execute('''
         SELECT movies.*, COUNT(favourites.movie_id) as fav_count 
@@ -242,6 +255,7 @@ def get_top_favourited_movies(current_user_id=None):
 
 
 def get_popular_movies(current_user_id=None):
+    # returns the most popular movies according to our data source "the movie database"
     cur = db.cursor()
     cur.execute('''
         SELECT movies.*, COUNT(favourites.movie_id) as fav_count 
@@ -251,16 +265,3 @@ def get_popular_movies(current_user_id=None):
         LIMIT 50;
         ''')
     return build_movie_list(cur.fetchall(), current_user_id)
-
-
-def get_all_movies(current_user_id=None):
-    cur = db.cursor()
-    cur.execute('''
-        SELECT movies.*, COUNT(favourites.movie_id) as fav_count 
-        FROM movies LEFT JOIN favourites ON movies.id = favourites.movie_id
-        GROUP BY movies.id
-        ORDER BY fav_count DESC, vote_count / 1000 * vote_average DESC
-        LIMIT 50;
-        ''')
-    return build_movie_list(cur.fetchall(), current_user_id)
-

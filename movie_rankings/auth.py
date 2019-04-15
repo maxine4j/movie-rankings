@@ -29,6 +29,7 @@ def try_login_user():
 
 
 def get_user_context(user_id):
+    # gets a context used for template rendering of the given user
     user = data.get_user(user_id)
     if user is None:
         return None
