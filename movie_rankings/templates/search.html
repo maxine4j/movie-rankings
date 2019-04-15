@@ -1,16 +1,16 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ context.search_query }}{% endblock %}
+{% block title %}{{ c.search_query }}{% endblock %}
 
 {% block body %}
 <div class="container">
     <div class="home-header-container">
         <div class="home-header">
-            <h1>Results for "{{ context.search_query }}"</a></h1>
+            <h1>Results for "{{ c.search_query }}"</a></h1>
         </div>
     </div>
     <div class="row">
-        {% for movie in context.movies %}
+        {% for movie in c.movies %}
         <div class="col-sm-4">
             {% include 'card.html' %}
         </div>

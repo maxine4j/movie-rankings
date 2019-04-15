@@ -21,13 +21,13 @@
         </tr>
         </thead>
         <tbody>
-        {% for i in range(context.movies|length) %}
+        {% for i in range(c.movies|length) %}
         <tr>
             <th scope="row">{{ i + 1 }}</th>
-            <td>{{ context.movies[i].title }}</td>
-            <td>{{ context.movies[i].year }}</td>
-            <td title="{{ context.movies[i].overview }}">{{ context.movies[i].overview|truncate(80) }}</td>
-            <td>{{ context.movies[i].fav_count }}</td>
+            <td>{{ c.movies[i].title }}</td>
+            <td>{{ c.movies[i].year }}</td>
+            <td title="{{ c.movies[i].overview }}">{{ c.movies[i].overview|truncate(80) }}</td>
+            <td>{{ c.movies[i].fav_count }}</td>
         </tr>
         {% endfor %}
         </tbody>

@@ -1,17 +1,17 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ context.user.name }}{% endblock %}
+{% block title %}{{ c.user.name }}{% endblock %}
 
 {% block body %}
 <div class="container">
     <div class="profile-header">
         <div class="profile-img-container" style="margin-right: 0.5rem;">
-            <img src="{{ context.target_user.avatar_url }}" style="border-radius: 100rem;">
+            <img src="{{ c.target_user.avatar_url }}" style="border-radius: 100rem;">
         </div>
-        <h1 class="profile-name" >{{ context.target_user.name }}</h1>
+        <h1 class="profile-name" >{{ c.target_user.name }}</h1>
     </div>
     <div class="row">
-        {% for movie in context.movies %}
+        {% for movie in c.movies %}
         <div class="col-sm-4">
             {% include 'card.html' %}
         </div>

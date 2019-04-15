@@ -1,6 +1,6 @@
 import sqlite3
 
-db_file = "C:\\Dev\\repo\\CITS3403-Project1-SocialChoice\\data.db"
+db_file = "../data.db"
 db = sqlite3.connect(db_file, check_same_thread=False)
 
 
@@ -96,18 +96,6 @@ def init_db():
     db.commit()
 
 
-def get_user_fav_movies(user_id):
-    cur = db.cursor()
-    cur.execute('''
-        SELECT * FROM movies JOIN favourites ON movies.id = favourites.movie_id WHERE favourites.user_id = ?;
-        ''', [user_id])
-    all_res = cur.fetchall()
-    movies = []
-    for res in all_res:
-        movies.append(build_movie(res))
-    return movies
-
-
 def build_user(sql_user):
     return {
         'id': sql_user[0],
@@ -169,6 +157,31 @@ def toggle_favourite(user_id, movie_id):
         return True
 
 
+def get_fav_movies(user_id):
+    fav_movies = []
+    if user_id is not None:
+        cur = db.cursor()
+        cur.execute('''
+                SELECT * 
+                FROM movies JOIN favourites ON movies.id = favourites.movie_id 
+                WHERE favourites.user_id = ?;
+                ''', [user_id])
+        for x in cur.fetchall():
+            fav_movies.append(build_movie(x))
+    return fav_movies
+
+
+def flag_fav_movies(movies, current_user_id=None):
+    user_favs = get_fav_movies(current_user_id)
+    for movie in movies:
+        movie['favourite'] = False
+        for fav in user_favs:
+            if fav['id'] == movie['id']:
+                movie['favourite'] = True
+                break
+    return movies
+
+
 def build_movie(sql_movie):
     movie = {
         'id': sql_movie[0],
@@ -183,32 +196,19 @@ def build_movie(sql_movie):
         'vote_count': sql_movie[8],
         'vote_average': sql_movie[9],
         'popularity': sql_movie[10],
+        'fav_count': sql_movie[11]
     }
-    if len(sql_movie) >= 12:
-        movie['fav_count'] = sql_movie[11]
     return movie
 
 
-def prepare_movie_list(movies, current_user_id):
-    # marks movies as favourited for the logged in user
-    user_favs = get_user_fav_movies(current_user_id)
-    for movie in movies:
-        movie['favourite'] = False
-        for fav in user_favs:
-            if fav['id'] == movie['id']:
-                movie['favourite'] = True
-                break
-    return movies
-
-
-def build_movie_list(sql_movies):
+def build_movie_list(sql_movies, current_user_id=None):
     movies = []
     for res in sql_movies:
         movies.append(build_movie(res))
-    return movies
+    return flag_fav_movies(movies, current_user_id)
 
 
-def search_movies(terms):
+def search_movies(terms, current_user_id=None):
     sql = '''
         SELECT movies.*, COUNT(favourites.movie_id) as fav_count 
         FROM movies LEFT JOIN favourites ON movies.id = favourites.movie_id
@@ -226,10 +226,10 @@ def search_movies(terms):
     for i in range(len(terms)):
         terms[i] = '%' + terms[i] + '%'
     cur.execute(sql, terms)
-    return build_movie_list(cur.fetchall())
+    return build_movie_list(cur.fetchall(), current_user_id)
 
 
-def get_top_favourited_movies():
+def get_top_favourited_movies(current_user_id=None):
     cur = db.cursor()
     cur.execute('''
         SELECT movies.*, COUNT(favourites.movie_id) as fav_count 
@@ -238,10 +238,10 @@ def get_top_favourited_movies():
         ORDER BY fav_count DESC, vote_count / 1000 * vote_average DESC
         LIMIT 50;
         ''')
-    return build_movie_list(cur.fetchall())
+    return build_movie_list(cur.fetchall(), current_user_id)
 
 
-def get_popular_movies():
+def get_popular_movies(current_user_id=None):
     cur = db.cursor()
     cur.execute('''
         SELECT movies.*, COUNT(favourites.movie_id) as fav_count 
@@ -250,10 +250,10 @@ def get_popular_movies():
         ORDER BY popularity DESC
         LIMIT 50;
         ''')
-    return build_movie_list(cur.fetchall())
+    return build_movie_list(cur.fetchall(), current_user_id)
 
 
-def get_all_movies():
+def get_all_movies(current_user_id=None):
     cur = db.cursor()
     cur.execute('''
         SELECT movies.*, COUNT(favourites.movie_id) as fav_count 
@@ -262,5 +262,5 @@ def get_all_movies():
         ORDER BY fav_count DESC, vote_count / 1000 * vote_average DESC
         LIMIT 50;
         ''')
-    return build_movie_list(cur.fetchall())
+    return build_movie_list(cur.fetchall(), current_user_id)
 

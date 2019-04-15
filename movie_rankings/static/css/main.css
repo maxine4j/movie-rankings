@@ -66,3 +66,37 @@
 .home-header > h1 {
     margin: 2rem;
 }
+
+.facebook-login-button, .facebook-login-button:visited {
+    margin-right: 0.5rem;
+    width: 236px;
+    height: 40px;
+    line-height: 40px;
+    text-decoration: none;
+    background-color: #4267b2;
+    border-radius: 5px;
+    text-align: center;
+    color: white;
+    text-align: center;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    display: inline-block;
+}
+
+.facebook-login-button:hover, .facebook-login-button:active {
+    color: white;
+    text-decoration: none;
+    background-color: #39599b;
+}
+
+.facebook-icon-container {
+    width: 40px;
+    height: 40px;
+    display: inline-block;
+    float: left;
+}
+
+.facebook-icon {
+    width: 24px;
+    height: 24px;
+}
