@@ -375,3 +375,30 @@ def get_popular_movies(current_user_id=None):
         LIMIT 50;
         ''')
     return build_movie_list(cur.fetchall(), current_user_id)
+
+
+def get_all_movies():
+    cur = db.cursor()
+    cur.execute('SELECT *, "null" FROM movies;')
+    return build_movie_list(cur.fetchall())
+
+
+def create_poll(cur_user_id, title, desc, choice_movie_ids):
+    cur = db.cursor()
+    # create the poll
+    cur.execute('''
+        INSERT INTO polls(
+        creator_user_id,
+        title,
+        description)
+        VALUES(?, ?, ?);
+    ''', [cur_user_id, title, desc])
+    poll_id = cur.lastrowid
+    # create the choices for the poll
+    for mid in choice_movie_ids:
+        cur.execute('''
+            INSERT INTO poll_choices(
+            poll_id,
+            movie_id)
+            VALUES(?, ?);
+        ''', [poll_id, mid])

@@ -54,3 +54,52 @@ function onPollChoiceClick(pollID, choiceID) {
     xhttp.open("GET", "/api/1/vote/"+pollID+"/"+choiceID, true);
     xhttp.send();
 }
+
+function initNewPollChoice(elementID) {
+    $(elementID).select2({
+        placeholder: "Enter a movie title",
+        ajax: {
+            url: '/api/1/search',
+            type: "GET",
+            dataType: "json",
+            delay: 250,
+            data: function (params) {
+                var query = {
+                    q: params.term
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return data
+            }
+        }
+    });
+}
+
+function addNewPollChoice() {
+    var pollChoiceCounter = document.getElementById("new-poll-choice-counter");
+    pollChoiceCounter.value = parseInt(pollChoiceCounter.value) + 1;
+    var newPollChoiceDiv = document.getElementById("new-poll-choices");
+    /*
+    <div class="form-group">
+        <select class="form-control new-poll-choice-select" id="new-poll-choice-1" name="choice1" ></select>
+    </div>
+    */
+    var div_formGroup = document.createElement("div");
+    newPollChoiceDiv.append(div_formGroup);
+    div_formGroup.setAttribute("class", "form-group");
+
+    var select_newChoice = document.createElement("select");
+    div_formGroup.append(select_newChoice);
+    select_newChoice.setAttribute("class", "form-control new-poll-choice-select");
+    select_newChoice.setAttribute("id", "new-poll-choice-" + pollChoiceCounter.value);
+    select_newChoice.setAttribute("name", "choice" + pollChoiceCounter.value);
+
+    initNewPollChoice("#new-poll-choice-" + pollChoiceCounter.value);
+}
+
+$(document).ready(function() {
+    //addNewPollChoice();
+    //addNewPollChoice();
+    //addNewPollChoice();
+});

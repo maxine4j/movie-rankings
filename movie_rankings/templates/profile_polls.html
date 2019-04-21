@@ -6,9 +6,9 @@
 <div class="container">
     {% include 'profile_header.html' %}
     <div class="row">
-        {% for movie in c.movies %}
+        {% for poll in c.polls %}
         <div class="col-sm-4">
-            {% include 'movie_card.html' %}
+            {% include 'poll_card.html' %}
         </div>
         {% endfor %}
     </div>

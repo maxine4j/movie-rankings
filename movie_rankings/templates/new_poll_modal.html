@@ -1,0 +1,37 @@
+<div class="modal fade" id="new-poll-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">New Poll</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="/api/1/newpoll">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="new-poll-title">Title</label>
+                        <input type="text" class="form-control" id="new-poll-title" name="title" placeholder="">
+                    </div>
+                    <div class="form-group">
+                        <label for="new-poll-description">Description</label>
+                        <textarea class="form-control" id="new-poll-description" name="description" rows="3" maxlength="256"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Choices</label>
+                    </div>
+                    <div id="new-poll-choices">
+                    </div>
+                    <div class="form-group">
+                        <button type="button" class="btn btn-secondary" onclick="addNewPollChoice()">Add Choice</button>
+                    </div>
+                    <input type="hidden" id="new-poll-choice-counter" value="0">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Create Poll</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

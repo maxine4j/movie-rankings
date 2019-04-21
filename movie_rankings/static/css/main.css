@@ -28,7 +28,6 @@
 }
 
 .profile-header {
-    display: flex;
     margin: 1.5rem 0rem;
     border: 1px solid rgba(0,0,0,.125);
     border-radius: 0.5rem;
@@ -39,19 +38,49 @@
     width: 10rem;
     height: 10rem;
     margin: 0;
+    display: inline-block;
 }
 
 .profile-img-container > img {
     width: 100%;
     height: auto;
+    margin: 0;
     border-radius: 100rem;
 }
 
 .profile-name {
-    display: flex;
-    width: auto;
+    width: 10rem;
     margin: 0;
+    margin: 0;
+    display: inline-block;
     padding: 0;
+}
+
+.profile-tabs {
+    display: block;
+    height: 70px;
+    float: bottom-right;
+    margin: auto;
+    margin-right: 0;
+}
+
+.profile-tab-link {
+    float: right;
+    border-radius: 0.25rem;
+    display: inline-block;
+    padding: 20px;
+    margin: 10px;
+    min-width: 10%;
+    text-align: center;
+    text-decoration: none;
+    color: rgba(0,0,0,.5);
+    background: #f8f9fa;
+}
+
+.profile-tab-link:hover {
+    text-decoration: none;
+    color: rgba(0,0,0,.75);
+    background: #dddddd;
 }
 
 .home-header-container {
@@ -129,3 +158,8 @@ progress::-moz-progress-bar {
     border-radius: 100px;
     background-color: #679ef7;
 }
+
+.new-poll-btn {
+    margin-left: 8px;
+}
+

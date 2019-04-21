@@ -27,11 +27,13 @@ def view_user_favs(target_user_id):
 
 @app_profile.route('/user/<target_user_id>/polls')
 def view_user_polls(target_user_id):
+    target_user = auth.get_user_context(target_user_id)
     polls = data.get_polls(auth.current_user_id(), target_user_id=target_user_id)
     for poll in polls:
         poll['choices'] = list(poll['choices'].values())
         poll['choices'].sort(key=lambda x: x['vote_count'], reverse=True)
-    return flask.render_template('polls.html', c={
+    return flask.render_template('profile_polls.html', c={
         'user': auth.get_user_context(auth.current_user_id()),
+        'target_user': target_user,
         'polls': polls
     })

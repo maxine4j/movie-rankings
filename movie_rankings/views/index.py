@@ -12,8 +12,10 @@ def view_index():
     auth.try_login_user()
     # get movie db popular movies
     movies = data.get_popular_movies(auth.current_user_id())
+    all_movies = data.get_all_movies()
     # render the index template with user and movies contexts
     return flask.render_template('index.html', c={
         'user': auth.get_user_context(auth.current_user_id()),
-        'movies': movies[:50]
+        'all_movies': all_movies,
+        'movies': movies[:50],
     })

@@ -7,7 +7,7 @@ import movie_rankings.auth as auth
 app_poll = flask.Blueprint('app_poll', __name__)
 
 
-@app_poll.route('/polls')
+@app_poll.route('/polls/')
 def view_all_polls():
     polls = data.get_polls(auth.current_user_id())
     for poll in polls:

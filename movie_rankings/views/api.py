@@ -35,3 +35,40 @@ def vote_poll(poll_id, choice_id):
     return json.dumps({
         'success': True,
     })
+
+
+@app_api.route('/api/1/search')
+def search_movies():
+    q = flask.request.args.get('q')
+    if q:
+        terms = q.split(' ')
+    else:
+        terms = [""]
+    movies = data.search_movies(terms)
+    res = {
+        'results': []
+    }
+    for m in movies:
+        res['results'].append({
+            'id': m['id'],
+            'text': m['title'],
+        })
+    return json.dumps(res)
+
+
+@app_api.route('/api/1/newpoll')
+def create_poll():
+    poll_title = flask.request.args.get('title')
+    poll_desc = flask.request.args.get('description')
+    poll_choices = []
+    for i in range(1, 25):
+        pc = flask.request.args.get('choice' + str(i))
+        if not pc:
+            break
+        poll_choices.append(pc)
+    # remove duplicates
+    poll_choices = list(dict.fromkeys(poll_choices))
+    data.create_poll(auth.current_user_id(), poll_title, poll_desc, poll_choices)
+    return json.dumps({
+        'success': True
+    })
