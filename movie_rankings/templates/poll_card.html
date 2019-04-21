@@ -1,6 +1,7 @@
 <div class="card p-2" >
     <div class="card-body">
         <h4 class="card-title">{{ poll.title }}</h4>
+        <p class="card-title">Created by <a href="/user/{{ poll.creator_user_id }}">{{ poll.creator_name }}</a></p>
         <p class="card-title">{{ poll.description }}</p>
         <form>
             <ul class="poll-choices" id="poll-choice-list-{{ poll.id }}">

@@ -148,6 +148,7 @@ def get_polls(current_user_id=None):
         SELECT polls.id AS poll_id, polls.creator_user_id, polls.title, polls.description, 
         poll_choices.id AS choice_id, poll_choices.movie_id AS movie_id,
         cnt.vote_count,
+        users.name,
         movies.*
         FROM polls
         LEFT JOIN poll_choices ON polls.id = poll_choices.poll_id
@@ -156,7 +157,8 @@ def get_polls(current_user_id=None):
             FROM poll_votes
             GROUP BY poll_votes.choice_id
         ) AS cnt ON cnt.choice_id = poll_choices.id
-        LEFT JOIN movies ON poll_choices.movie_id = movies.id;
+        LEFT JOIN movies ON poll_choices.movie_id = movies.id
+        JOIN users ON users.id = polls.creator_user_id;
     ''')
     polls = {}
     res = cur.fetchall()
@@ -166,6 +168,7 @@ def get_polls(current_user_id=None):
         polls[poll_id] = {
             'id': poll_id,
             'creator_user_id': r[1],
+            'creator_name': r[7],
             'title': r[2],
             'description': r[3],
             'max_vote_count': 0,
@@ -187,17 +190,17 @@ def get_polls(current_user_id=None):
             'vote_count': vote_count,
             'movie': {
                 'id': r[5],
-                'title': r[8],
-                'release_date': r[9],
-                'year': r[9].split('-')[0],
-                'overview': r[10],
-                'language': r[11],
-                'poster_url': r[12],
-                'backdrop_url': r[13],
-                'genre_ids': r[14],
-                'vote_count': r[15],
-                'vote_average': r[16],
-                'popularity': r[17],
+                'title': r[9],
+                'release_date': r[10],
+                'year': r[10].split('-')[0],
+                'overview': r[11],
+                'language': r[12],
+                'poster_url': r[13],
+                'backdrop_url': r[14],
+                'genre_ids': r[15],
+                'vote_count': r[16],
+                'vote_average': r[17],
+                'popularity': r[18],
             },
         }
 
