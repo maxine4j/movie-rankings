@@ -168,7 +168,9 @@ def get_polls(current_user_id=None):
             'creator_user_id': r[1],
             'title': r[2],
             'description': r[3],
-            'choices': {}
+            'max_vote_count': 0,
+            'total_vote_count': 0,
+            'choices': {},
         }
     # add choices to every poll
     for r in res:
@@ -177,6 +179,9 @@ def get_polls(current_user_id=None):
         vote_count = r[6]
         if not vote_count:
             vote_count = 0
+        if polls[poll_id]['max_vote_count'] < vote_count:
+            polls[poll_id]['max_vote_count'] = vote_count
+        polls[poll_id]['total_vote_count'] += vote_count
         polls[poll_id]['choices'][poll_choice_id] = {
             'id': poll_choice_id,
             'vote_count': vote_count,
@@ -207,7 +212,7 @@ def get_polls(current_user_id=None):
             polls[poll_id]['choices'][choice_id]['user_voted'] = True
             polls[poll_id]['selected_choice_id'] = choice_id
 
-    return polls
+    return list(polls.values())
 
 
 def add_favourite(user_id, movie_id):

@@ -100,3 +100,32 @@
     width: 24px;
     height: 24px;
 }
+
+.poll-choices {
+    padding: 0;
+    list-style-type: none;
+}
+
+.poll-prog-bar, .poll-prog-bar::-webkit-progress-bar, .poll-prog-bar::-webkit-progress-value {
+    border: 0;
+    height: 20px;
+    border-radius: 100px;
+}
+
+progress {
+    background-color: #f3f3f3;
+}
+
+progress::-webkit-progress-bar {
+    background-color: #f3f3f3;
+}
+
+progress::-webkit-progress-value {
+    border-radius: 100px;
+    background-color: #679ef7;
+}
+
+progress::-moz-progress-bar {
+    border-radius: 100px;
+    background-color: #679ef7;
+}

@@ -9,11 +9,11 @@ function onFavouriteButtonClick(movieID) {
                 if (res['favourite']) {
                     btn.classList.remove('btn-fav-false', 'btn-primary');
                     btn.classList.add('btn-fav-true', 'btn-outline-danger');
-                    favCounter.innerHTML = parseInt(favCounter.innerHTML) + 1
+                    favCounter.innerHTML = parseInt(favCounter.innerHTML) + 1;
                 } else {
                     btn.classList.remove('btn-fav-true', 'btn-outline-danger');
                     btn.classList.add('btn-fav-false', 'btn-primary');
-                    favCounter.innerHTML = parseInt(favCounter.innerHTML) - 1
+                    favCounter.innerHTML = parseInt(favCounter.innerHTML) - 1;
                 }
             } else {
                 alert(res['message']);
@@ -30,12 +30,21 @@ function onPollChoiceClick(pollID, choiceID) {
         if (this.readyState == 4 && this.status == 200) {
             var res = JSON.parse(this.response);
             if (res.success) {
-                var new_vote_counter = document.getElementById("vote-count-" + choiceID);
                 var prev_choice_field = document.getElementById("poll-prev-choice-" + pollID);
-                var prev_choice_id = prev_choice_field.value;
-                var prev_vote_counter = document.getElementById("vote-count-" + prev_choice_id);
-                new_vote_counter.innerHTML = parseInt(new_vote_counter.innerHTML) + 1;
-                prev_vote_counter.innerHTML = parseInt(prev_vote_counter.innerHTML) - 1;
+                var prev_prog_bar = document.getElementById("poll-prog-" + prev_choice_field.value);
+                var prog_bar = document.getElementById("poll-prog-" + choiceID);
+                var max_counter = document.getElementById("poll-max-count-" + choiceID);
+                var total_counter = document.getElementById("poll-total-count-" + pollID);
+
+                if (prev_prog_bar) {
+                    prev_prog_bar.value -= 1;
+                }
+                prog_bar.value += 1;
+
+                if (prev_choice_field.value == -1) {
+                    total_counter.innerHTML = parseInt(total_counter.innerHTML) + 1;
+                }
+
                 prev_choice_field.value = choiceID;
             } else {
                 alert(res['message']);

@@ -3,16 +3,19 @@
         <h4 class="card-title">{{ poll.title }}</h4>
         <p class="card-title">{{ poll.description }}</p>
         <form>
-            <ul>
-                {% for k, poll_choice in poll.choices.items() %}
-                <li>
+            <ul class="poll-choices" id="poll-choice-list-{{ poll.id }}">
+                {% for poll_choice in poll.choices %}
+                <li class="poll-choice">
                     <input type="radio" id="{{ poll_choice.id }}" name="{{ poll.id }}" value="{{ poll_choice.id }}"
                            onclick="onPollChoiceClick({{ poll.id }}, {{ poll_choice.id }});" {% if poll_choice.user_voted %}checked{% endif %}>
-                    <label for="{{ poll_choice.id }}"><span id="vote-count-{{ poll_choice.id }}">{{ poll_choice.vote_count }}</span> - {{ poll_choice.movie.title }}</label>
+                    <label for="{{ poll_choice.id }}">{{ poll_choice.movie.title }}</label>
+                    <progress class="poll-prog-bar" style="width: 100%" id="poll-prog-{{ poll_choice.id }}" max="{{ poll.max_vote_count }}" value="{{ poll_choice.vote_count }}"></progress>
                 </li>
                 {% endfor %}
             </ul>
-            <input type="hidden" id="poll-prev-choice-{{ poll.id }}" value="{{ poll.selected_choice_id }}" />
+            <span><span id="poll-total-count-{{ poll.id }}">{{ poll.total_vote_count }}</span> votes</span>
+            <input type="hidden" id="poll-max-count-{{ poll.id }}" value="{{ poll.max_vote_count }}" />
+            <input type="hidden" id="poll-prev-choice-{{ poll.id }}" value="{{ poll.selected_choice_id or -1 }}" />
         </form>
     </div>
 </div>

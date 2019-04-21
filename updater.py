@@ -113,6 +113,31 @@ def insert_test_polls():
     db.commit()
 
 
+def insert_test_poll_votes():
+    db_file = "C:\\Dev\\repo\\CITS3403-Project1-SocialChoice\\data.db"
+    db = sqlite3.connect(db_file, check_same_thread=False)
+    # get all users and movies
+    res = db.execute('SELECT * FROM users;')
+    user_ids = []
+    for r in res:
+        user_ids.append(r[0])
+    res = db.execute('SELECT * FROM poll_choices;')
+    poll_choices = []
+    for r in res:
+        poll_choices.append((r[0], r[1]))
+    for i in range(1, 1000):
+        pc = random.choice(poll_choices)
+        uid = random.choice(user_ids)
+        db.execute('''
+            INSERT INTO poll_votes(
+            poll_id, 
+            choice_id, 
+            user_id)
+            VALUES(?, ?, ?);
+        ''', [pc[1], pc[0], uid])
+    db.commit()
+
+
 def update_movie_db():
     db_file = "C:\\Dev\\repo\\CITS3403-Project1-SocialChoice\\data.db"
     db = sqlite3.connect(db_file, check_same_thread=False)
@@ -166,4 +191,5 @@ if __name__ == '__main__':
     #db_file = "C:\\Dev\\repo\\CITS3403-Project1-SocialChoice\\data.db"
     #db = sqlite3.connect(db_file, check_same_thread=False)
     #db.execute('drop table poll_votes;')
+    #insert_test_poll_votes()
     pass
