@@ -47,6 +47,7 @@ def init_db():
             CREATE TABLE IF NOT EXISTS polls (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 creator_user_id INTEGER NOT NULL,
+                title TEXT,
                 description TEXT,
                 
                 CONSTRAINT fk_users
@@ -128,6 +129,119 @@ def register_user(facebook_id, facebook_name):
         return True, 'User registered successfully'
     except sqlite3.IntegrityError:
         return False, 'User already registered'
+
+
+def change_poll_vote(user_id, poll_id, choice_id):
+    # adds or changes vote for a given poll/user
+    cur = db.cursor()
+    cur.execute('''
+            INSERT OR REPLACE INTO poll_votes(poll_id, choice_id, user_id)
+            VALUES (?, ?, ?);
+            ''', [poll_id, choice_id, user_id])
+    db.commit()
+
+
+def build_poll(sql_poll):
+    return {
+        'id': sql_poll[0],
+        'creator_user_id': sql_poll[1],
+        'title': sql_poll[2],
+        'description': sql_poll[3],
+    }
+
+
+def build_poll_list(sql_polls):
+    polls = []
+    for res in sql_polls:
+        polls.append(build_poll(res))
+    return polls
+
+
+def build_poll_choice(sql_poll_choice):
+    return {
+        'id': sql_poll_choice[0],
+        'poll_id': sql_poll_choice[1],
+        'movie': {
+            'id': sql_poll_choice[2],
+            'title': sql_poll_choice[4],
+            'release_date': sql_poll_choice[5],
+            'year': sql_poll_choice[5].split('-')[0],
+            'overview': sql_poll_choice[6],
+            'language': sql_poll_choice[7],
+            'poster_url': sql_poll_choice[8],
+            'backdrop_url': sql_poll_choice[9],
+            'genre_ids': sql_poll_choice[10],
+            'vote_count': sql_poll_choice[11],
+            'vote_average': sql_poll_choice[12],
+            'popularity': sql_poll_choice[13],
+        },
+    }
+
+
+def build_poll_choice_list(sql_poll_choices):
+    poll_choices = []
+    for res in sql_poll_choices:
+        poll_choices.append(build_poll_choice(res))
+    return poll_choices
+
+
+def get_poll_choices(poll_id):
+    cur = db.cursor()
+    cur.execute('''
+        SELECT * FROM 'poll_choices' JOIN movies ON poll_choices.movie_id = movies.id
+        WHERE poll_choices.poll_id = ?;
+    ''', [poll_id])
+    return build_poll_choice_list(cur.fetchall())
+
+
+def build_poll_vote(sql_poll_vote):
+    return {
+        'id': sql_poll_vote[0],
+        'poll_id': sql_poll_vote[1],
+        'choice_id': sql_poll_vote[2],
+        'user_id': sql_poll_vote[3],
+    }
+
+
+def build_poll_vote_list(sql_poll_votes):
+    poll_votes = []
+    for res in sql_poll_votes:
+        poll_votes.append(build_poll_vote(res))
+    return poll_votes
+
+
+def flag_user_poll_votes(polls, current_user):
+    cur = db.cursor()
+    cur.execute('''
+        SELECT *
+        FROM poll_votes
+        WHERE user_id = ?;
+    ''', [current_user])
+    poll_votes = build_poll_vote_list(cur.fetchall())
+    for poll in polls:
+        done = False
+        for poll_vote in poll_votes:
+            if done: break
+            if poll_vote['poll_id'] == poll['id']:
+                for poll_choice in poll['choices']:
+                    if poll_choice['id'] == poll_vote['choice_id']:
+                        poll_choice['user_voted'] = True
+                        done = True
+                        break
+    return polls
+
+
+def get_polls(current_user_id=None):
+    cur = db.cursor()
+    cur.execute('''
+        SELECT * FROM polls;
+    ''')
+    polls = build_poll_list(cur.fetchall())
+    for poll in polls:
+        poll['choices'] = get_poll_choices(poll['id'])
+    if current_user_id:
+        polls = flag_user_poll_votes(polls, current_user_id)
+    return polls
 
 
 def add_favourite(user_id, movie_id):
@@ -219,6 +333,7 @@ def build_movie(sql_movie, has_fav_count=True):
         'genre_ids': sql_movie[7],
         'vote_count': sql_movie[8],
         'vote_average': sql_movie[9],
+        'popularity': sql_movie[10],
     }
     if has_fav_count:
         movie['fav_count'] = sql_movie[11]
@@ -328,24 +443,4 @@ def populate_poll_vote_counts(polls):
             if polls[i]['id'] == r[0]:
                 polls[i]['choices'][r[1]] = r[2]
     return polls
-
-
-def build_poll_list(sql_polls):
-    polls = []
-    for res in sql_polls:
-        polls.append(build_poll(res))
-    return polls
-
-
-def get_polls():
-    # returns most popular user created polls sorted by response amount
-    cur = db.cursor()
-    cur.execute('''
-        SELECT polls.*, COUNT(poll_votes.poll_id) as vote_count 
-        FROM polls LEFT JOIN poll_votes ON poll.id = poll_votes.poll_id
-        GROUP BY polls.id
-        ORDER BY vote_count DESC
-        LIMIT 50;
-    ''')
-    return build_poll_list(cur.fetchall())
 

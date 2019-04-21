@@ -43,6 +43,76 @@ def insert_test_users():
         db.commit()
 
 
+def build_movie(sql_movie):
+    # builds a movie dict from query results
+    movie = {
+        'id': sql_movie[0],
+        'title': sql_movie[1],
+        'release_date': sql_movie[2],
+        'year': sql_movie[2].split('-')[0],
+        'overview': sql_movie[3],
+        'language': sql_movie[4],
+        'poster_url': sql_movie[5],
+        'backdrop_url': sql_movie[6],
+        'genre_ids': sql_movie[7],
+        'vote_count': sql_movie[8],
+        'vote_average': sql_movie[9],
+    }
+    return movie
+
+
+def build_movie_list(sql_movies):
+    # builds a list of movie dicts from query results
+    movies = []
+    for res in sql_movies:
+        movies.append(build_movie(res))
+    return movies
+
+
+def build_user(sql_user):
+    # build a user dict from the supplied query result
+    return {
+        'id': sql_user[0],
+        'name': sql_user[1],
+    }
+
+
+def build_user_list(sql_users):
+    users = []
+    for res in sql_users:
+        users.append(build_user(res))
+    return users
+
+
+def insert_test_polls():
+    db_file = "C:\\Dev\\repo\\CITS3403-Project1-SocialChoice\\data.db"
+    db = sqlite3.connect(db_file, check_same_thread=False)
+    # get all users and movies
+    users = build_user_list(db.execute('SELECT * FROM users;'))
+    movies = build_movie_list(db.execute('SELECT * FROM movies;'))
+    # add some polls
+    li = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent posuere feugiat elit, vitae ultrices arcu consequat ac. Sed ut ipsum tortor. Duis ac aliquam nibh, a mollis enim. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec et venenatis sem. Ut ullamcorper velit nec ex dictum aliquam. Vivamus euismod, felis ut euismod viverra, risus tellus tincidunt massa, eu efficitur magna sapien et felis.'
+    for poll_id in range(1, 24):
+        db.execute('''
+            INSERT INTO polls(
+            id,
+            creator_user_id,
+            title,
+            description)
+            VALUES(?, ?, ?, ?);
+        ''', [poll_id, 10213294105333691, 'POLL_TITLE_' + str(poll_id), li])
+        # add some choices for the poll
+        for j in range(1, 20):
+            if random.choice([True] * 4 + [False]):
+                db.execute('''
+                    INSERT INTO poll_choices(
+                    poll_id,
+                    movie_id)
+                    VALUES(?, ?);
+                ''', [poll_id, random.choice(movies)['id']])
+    db.commit()
+
+
 def update_movie_db():
     db_file = "C:\\Dev\\repo\\CITS3403-Project1-SocialChoice\\data.db"
     db = sqlite3.connect(db_file, check_same_thread=False)
@@ -92,4 +162,8 @@ def update_movie_db():
 if __name__ == '__main__':
     #update_movie_db()
     #insert_test_users()
+    #insert_test_polls()
+    #db_file = "C:\\Dev\\repo\\CITS3403-Project1-SocialChoice\\data.db"
+    #db = sqlite3.connect(db_file, check_same_thread=False)
+    #db.execute('drop table poll_votes;')
     pass

@@ -8,6 +8,7 @@ from movie_rankings.views.index import app_index
 from movie_rankings.views.profile import app_profile
 from movie_rankings.views.rankings import app_rankings
 from movie_rankings.views.search import app_search
+from movie_rankings.views.poll import app_poll
 
 
 # create and set up flask app
@@ -25,6 +26,7 @@ app.register_blueprint(app_index)
 app.register_blueprint(app_profile)
 app.register_blueprint(app_rankings)
 app.register_blueprint(app_search)
+app.register_blueprint(app_poll)
 # initialise the DB
 data.init_db()
 
