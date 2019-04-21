@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ c.user.name }}{% endblock %}
+
+{% block body %}
+<div class="container">
+    {% include 'profile_header.html' %}
+    <div class="row">
+        {% for movie in c.movies %}
+        <div class="col-sm-4">
+            {% include 'movie_card.html' %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,8 @@
+<div class="profile-header">
+    <div class="profile-img-container" style="margin-right: 0.5rem;">
+        <img src="{{ c.target_user.avatar_url }}" style="border-radius: 100rem;">
+    </div>
+    <h1 class="profile-name" >{{ c.target_user.name }}</h1>
+    <a href="/user/{{ c.target_user.id }}">Favourites</a>
+    <a href="/user/{{ c.target_user.id }}/polls">Polls</a>
+</div>

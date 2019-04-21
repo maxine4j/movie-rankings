@@ -92,7 +92,7 @@ def insert_test_polls():
     movies = build_movie_list(db.execute('SELECT * FROM movies;'))
     # add some polls
     li = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent posuere feugiat elit, vitae ultrices arcu consequat ac. Sed ut ipsum tortor. Duis ac aliquam nibh, a mollis enim. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec et venenatis sem. Ut ullamcorper velit nec ex dictum aliquam. Vivamus euismod, felis ut euismod viverra, risus tellus tincidunt massa, eu efficitur magna sapien et felis.'
-    for poll_id in range(1, 24):
+    for poll_id in range(25, 50):
         db.execute('''
             INSERT INTO polls(
             id,
@@ -100,7 +100,7 @@ def insert_test_polls():
             title,
             description)
             VALUES(?, ?, ?, ?);
-        ''', [poll_id, 10213294105333691, 'POLL_TITLE_' + str(poll_id), li])
+        ''', [poll_id, random.choice(users)['id'], 'POLL_TITLE_' + str(poll_id), li])
         # add some choices for the poll
         for j in range(1, 20):
             if random.choice([True] * 4 + [False]):
@@ -191,5 +191,5 @@ if __name__ == '__main__':
     #db_file = "C:\\Dev\\repo\\CITS3403-Project1-SocialChoice\\data.db"
     #db = sqlite3.connect(db_file, check_same_thread=False)
     #db.execute('drop table poll_votes;')
-    #insert_test_poll_votes()
+    insert_test_poll_votes()
     pass

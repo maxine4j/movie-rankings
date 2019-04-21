@@ -141,10 +141,10 @@ def change_poll_vote(user_id, poll_id, choice_id):
     db.commit()
 
 
-def get_polls(current_user_id=None):
+def get_polls(current_user_id=None, target_user_id=None):
     cur = db.cursor()
     # selects every choice in the db with full movie/poll/vote data
-    cur.execute('''
+    sql = '''
         SELECT polls.id AS poll_id, polls.creator_user_id, polls.title, polls.description, 
         poll_choices.id AS choice_id, poll_choices.movie_id AS movie_id,
         cnt.vote_count,
@@ -158,8 +158,14 @@ def get_polls(current_user_id=None):
             GROUP BY poll_votes.choice_id
         ) AS cnt ON cnt.choice_id = poll_choices.id
         LEFT JOIN movies ON poll_choices.movie_id = movies.id
-        JOIN users ON users.id = polls.creator_user_id;
-    ''')
+        JOIN users ON users.id = polls.creator_user_id
+    '''
+    if target_user_id:
+        sql += " WHERE polls.creator_user_id = ?;"
+        cur.execute(sql, [target_user_id])
+    else:
+        sql += ';'
+        cur.execute(sql)
     polls = {}
     res = cur.fetchall()
     # go through every choice in the result and make a dict for every unique poll
@@ -212,8 +218,9 @@ def get_polls(current_user_id=None):
         for r in cur.fetchall():
             poll_id = r[1]
             choice_id = r[2]
-            polls[poll_id]['choices'][choice_id]['user_voted'] = True
-            polls[poll_id]['selected_choice_id'] = choice_id
+            if poll_id in polls:
+                polls[poll_id]['choices'][choice_id]['user_voted'] = True
+                polls[poll_id]['selected_choice_id'] = choice_id
 
     return list(polls.values())
 
