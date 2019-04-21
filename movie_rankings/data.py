@@ -169,13 +169,27 @@ def get_fav_movies(user_id):
     if user_id is not None:
         cur = db.cursor()
         cur.execute('''
-                SELECT * 
+                SELECT *
                 FROM movies JOIN favourites ON movies.id = favourites.movie_id 
                 WHERE favourites.user_id = ?;
                 ''', [user_id])
         for x in cur.fetchall():
-            fav_movies.append(build_movie(x))
+            fav_movies.append(build_movie(x, False))
     return fav_movies
+
+
+def add_fav_count(movies):
+    cur = db.cursor()
+    for m in movies:
+        cur.execute('''
+            SELECT COUNT(*) as fav_count
+            FROM favourites WHERE movie_id = ?
+            GROUP BY favourites.movie_id ;
+        ''', [m['id']])
+        res = cur.fetchone()
+        if res:
+            m['fav_count'] = res[0]
+    return movies
 
 
 def flag_fav_movies(movies, current_user_id=None):
@@ -191,7 +205,7 @@ def flag_fav_movies(movies, current_user_id=None):
     return movies
 
 
-def build_movie(sql_movie):
+def build_movie(sql_movie, has_fav_count=True):
     # builds a movie dict from query results
     movie = {
         'id': sql_movie[0],
@@ -205,9 +219,9 @@ def build_movie(sql_movie):
         'genre_ids': sql_movie[7],
         'vote_count': sql_movie[8],
         'vote_average': sql_movie[9],
-        'popularity': sql_movie[10],
-        'fav_count': sql_movie[11]
     }
+    if has_fav_count:
+        movie['fav_count'] = sql_movie[11]
     return movie
 
 

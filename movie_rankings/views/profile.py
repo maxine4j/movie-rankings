@@ -14,6 +14,7 @@ def view_user(target_user_id):
         return flask.abort(404)
     # get the target users favourite movies
     movies = data.get_fav_movies(target_user_id)
+    movies = data.add_fav_count(movies)
     # flag our own favourite status for each of them
     movies = data.flag_fav_movies(movies, auth.current_user_id())
     # render the profile page
