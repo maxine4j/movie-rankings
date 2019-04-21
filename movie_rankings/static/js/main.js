@@ -30,7 +30,13 @@ function onPollChoiceClick(pollID, choiceID) {
         if (this.readyState == 4 && this.status == 200) {
             var res = JSON.parse(this.response);
             if (res.success) {
-                console.log('success');
+                var new_vote_counter = document.getElementById("vote-count-" + choiceID);
+                var prev_choice_field = document.getElementById("poll-prev-choice-" + pollID);
+                var prev_choice_id = prev_choice_field.value;
+                var prev_vote_counter = document.getElementById("vote-count-" + prev_choice_id);
+                new_vote_counter.innerHTML = parseInt(new_vote_counter.innerHTML) + 1;
+                prev_vote_counter.innerHTML = parseInt(prev_vote_counter.innerHTML) - 1;
+                prev_choice_field.value = choiceID;
             } else {
                 alert(res['message']);
             }

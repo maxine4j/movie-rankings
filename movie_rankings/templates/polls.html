@@ -10,7 +10,7 @@
         </div>
     </div>
     <div class="row">
-        {% for poll in c.polls %}
+        {% for k, poll in c.polls.items() %}
         <div class="col-sm-4">
             {% include 'poll_card.html' %}
         </div>

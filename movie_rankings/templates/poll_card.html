@@ -1,16 +1,18 @@
 <div class="card p-2" >
     <div class="card-body">
         <h4 class="card-title">{{ poll.title }}</h4>
+        <p class="card-title">{{ poll.description }}</p>
         <form>
             <ul>
-                {% for poll_choice in poll.choices %}
+                {% for k, poll_choice in poll.choices.items() %}
                 <li>
                     <input type="radio" id="{{ poll_choice.id }}" name="{{ poll.id }}" value="{{ poll_choice.id }}"
                            onclick="onPollChoiceClick({{ poll.id }}, {{ poll_choice.id }});" {% if poll_choice.user_voted %}checked{% endif %}>
-                    <label for="{{ poll_choice.id }}">{{ poll_choice.movie.title }}</label>
+                    <label for="{{ poll_choice.id }}"><span id="vote-count-{{ poll_choice.id }}">{{ poll_choice.vote_count }}</span> - {{ poll_choice.movie.title }}</label>
                 </li>
                 {% endfor %}
             </ul>
+            <input type="hidden" id="poll-prev-choice-{{ poll.id }}" value="{{ poll.selected_choice_id }}" />
         </form>
     </div>
 </div>
