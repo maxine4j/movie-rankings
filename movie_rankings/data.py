@@ -435,3 +435,4 @@ def create_poll(cur_user_id, title, desc, choice_movie_ids):
             movie_id)
             VALUES(?, ?);
         ''', [poll_id, mid])
+    return poll_id

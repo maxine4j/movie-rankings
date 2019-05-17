@@ -74,9 +74,5 @@ def create_poll():
         poll_choices.append(pc)
     # remove duplicates
     poll_choices = list(dict.fromkeys(poll_choices))
-    data.create_poll(auth.current_user_id(), poll_title, poll_desc, poll_choices)
-    # TODO: redirect to poll page
-    return json.dumps({
-        'success': True,
-        'message': 'TODO: redirect to poll page'
-    })
+    poll_id = data.create_poll(auth.current_user_id(), poll_title, poll_desc, poll_choices)
+    return flask.redirect('/poll/{}'.format(poll_id))
