@@ -17,3 +17,14 @@ def view_all_polls():
         'user': auth.get_user_context(auth.current_user_id()),
         'polls': polls
     })
+
+
+@app_poll.route('/poll/<poll_id>')
+def view_poll(poll_id):
+    poll = data.get_poll(poll_id, current_user_id=auth.current_user_id())
+    poll['choices'] = list(poll['choices'].values())
+    poll['choices'].sort(key=lambda x: x['vote_count'], reverse=True)
+    return flask.render_template('poll.html', c={
+        'user': auth.get_user_context(auth.current_user_id()),
+        'poll': poll
+    })

@@ -58,6 +58,12 @@ def search_movies():
 
 @app_api.route('/api/1/newpoll')
 def create_poll():
+    # check if the user is logged in
+    if not auth.is_authenticated():
+        return json.dumps({
+            'success': False,
+            'message': 'You are not logged in'
+        })
     poll_title = flask.request.args.get('title')
     poll_desc = flask.request.args.get('description')
     poll_choices = []
@@ -69,6 +75,8 @@ def create_poll():
     # remove duplicates
     poll_choices = list(dict.fromkeys(poll_choices))
     data.create_poll(auth.current_user_id(), poll_title, poll_desc, poll_choices)
+    # TODO: redirect to poll page
     return json.dumps({
-        'success': True
+        'success': True,
+        'message': 'TODO: redirect to poll page'
     })

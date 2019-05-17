@@ -141,35 +141,10 @@ def change_poll_vote(user_id, poll_id, choice_id):
     db.commit()
 
 
-def get_polls(current_user_id=None, target_user_id=None):
-    cur = db.cursor()
-    # selects every choice in the db with full movie/poll/vote data
-    sql = '''
-        SELECT polls.id AS poll_id, polls.creator_user_id, polls.title, polls.description, 
-        poll_choices.id AS choice_id, poll_choices.movie_id AS movie_id,
-        cnt.vote_count,
-        users.name,
-        movies.*
-        FROM polls
-        LEFT JOIN poll_choices ON polls.id = poll_choices.poll_id
-        LEFT JOIN (
-            SELECT choice_id, COUNT(*) AS vote_count
-            FROM poll_votes
-            GROUP BY poll_votes.choice_id
-        ) AS cnt ON cnt.choice_id = poll_choices.id
-        LEFT JOIN movies ON poll_choices.movie_id = movies.id
-        JOIN users ON users.id = polls.creator_user_id
-    '''
-    if target_user_id:
-        sql += " WHERE polls.creator_user_id = ?;"
-        cur.execute(sql, [target_user_id])
-    else:
-        sql += ';'
-        cur.execute(sql)
+def build_poll_dicts(sql_res, current_user_id=None):
+    # build poll dicts
     polls = {}
-    res = cur.fetchall()
-    # go through every choice in the result and make a dict for every unique poll
-    for r in res:
+    for r in sql_res:
         poll_id = r[0]
         polls[poll_id] = {
             'id': poll_id,
@@ -181,8 +156,8 @@ def get_polls(current_user_id=None, target_user_id=None):
             'total_vote_count': 0,
             'choices': {},
         }
-    # add choices to every poll
-    for r in res:
+    # populate poll dicts with their choices
+    for r in sql_res:
         poll_id = r[0]
         poll_choice_id = r[4]
         vote_count = r[6]
@@ -209,19 +184,77 @@ def get_polls(current_user_id=None, target_user_id=None):
                 'popularity': r[18],
             },
         }
-
     # flag the choices the logged in user has voted for
     if current_user_id:
+        cur = db.cursor()
         cur.execute('''
-            SELECT * FROM poll_votes WHERE user_id = ?;
-        ''', [current_user_id])
+                SELECT * FROM poll_votes WHERE user_id = ?;
+            ''', [current_user_id])
         for r in cur.fetchall():
             poll_id = r[1]
             choice_id = r[2]
             if poll_id in polls:
                 polls[poll_id]['choices'][choice_id]['user_voted'] = True
                 polls[poll_id]['selected_choice_id'] = choice_id
+    return polls
 
+
+def get_poll(poll_id, current_user_id=None):
+    cur = db.cursor()
+    sql = '''
+        SELECT polls.id AS poll_id, polls.creator_user_id, polls.title, polls.description, 
+        poll_choices.id AS choice_id, poll_choices.movie_id AS movie_id,
+        cnt.vote_count,
+        users.name,
+        movies.*
+        FROM polls
+        LEFT JOIN poll_choices ON polls.id = poll_choices.poll_id
+        LEFT JOIN (
+            SELECT choice_id, COUNT(*) AS vote_count
+            FROM poll_votes
+            GROUP BY poll_votes.choice_id
+        ) AS cnt ON cnt.choice_id = poll_choices.id
+        LEFT JOIN movies ON poll_choices.movie_id = movies.id
+        JOIN users ON users.id = polls.creator_user_id
+        WHERE poll_id = ?;
+    '''
+    cur.execute(sql, [poll_id])
+    res = cur.fetchall()
+    polls = build_poll_dicts(res, current_user_id=current_user_id)
+    polls = list(polls.values())
+    if len(polls) == 1:
+        return polls[0]
+    else:
+        return None
+
+
+def get_polls(current_user_id=None, target_user_id=None):
+    cur = db.cursor()
+    # selects every choice in the db with full movie/poll/vote data
+    sql = '''
+        SELECT polls.id AS poll_id, polls.creator_user_id, polls.title, polls.description, 
+        poll_choices.id AS choice_id, poll_choices.movie_id AS movie_id,
+        cnt.vote_count,
+        users.name,
+        movies.*
+        FROM polls
+        LEFT JOIN poll_choices ON polls.id = poll_choices.poll_id
+        LEFT JOIN (
+            SELECT choice_id, COUNT(*) AS vote_count
+            FROM poll_votes
+            GROUP BY poll_votes.choice_id
+        ) AS cnt ON cnt.choice_id = poll_choices.id
+        LEFT JOIN movies ON poll_choices.movie_id = movies.id
+        JOIN users ON users.id = polls.creator_user_id
+    '''
+    if target_user_id:
+        sql += " WHERE polls.creator_user_id = ?;"
+        cur.execute(sql, [target_user_id])
+    else:
+        sql += ';'
+        cur.execute(sql)
+    res = cur.fetchall()
+    polls = build_poll_dicts(res, current_user_id=current_user_id)
     return list(polls.values())
 
 
