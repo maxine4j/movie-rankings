@@ -6,7 +6,13 @@
 <div class="container">
     <div class="row">
         {% set poll = c.poll %}
-        {% include 'poll_card.html' %}
+        <div class="col-sm-6">
+            {% include 'poll_card.html' %}
+        </div>
+        <div class="col-sm-6">
+            {% set poll_comments = c.comments %}
+            {% include 'poll_comment_card.html' %}
+        </div>
     </div>
 </div>
 {% endblock %}

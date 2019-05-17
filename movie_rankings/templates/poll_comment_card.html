@@ -1,0 +1,14 @@
+<div class="card p-2" >
+    <div class="card-body">
+        <h5 class="card-title">Comments</h5>
+        {% for comment in poll_comments %}
+        <div>
+            <div class="img-container">
+                <img src="/profile.png">
+            </div>
+            <p>{{ comment.user.name }} - {{ comment.timestamp }}</p>
+            <p>{{ comment.body }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>

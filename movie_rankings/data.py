@@ -94,7 +94,59 @@ def init_db():
                     REFERENCES users (id)
                 );
             ''')
+    db.execute('''
+                CREATE TABLE IF NOT EXISTS poll_comments (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    poll_id INTEGER,
+                    user_id INTEGER,
+                    body TEXT,
+                    timestamp INTEGER,
+
+                    CONSTRAINT fk_polls
+                    FOREIGN KEY (poll_id)
+                    REFERENCES polls (id),
+                    
+                    CONSTRAINT fk_users
+                    FOREIGN KEY (user_id)
+                    REFERENCES users (id)
+                );
+            ''')
     db.commit()
+
+
+def build_comment(sql_comment):
+    # build a comment dict from the supplied query result
+    return {
+        'id': sql_comment[0],
+        'poll_id': sql_comment[1],
+        'user_id': sql_comment[2],
+        'body': sql_comment[3],
+        'timestamp': sql_comment[4],
+        'user': {
+            'id': sql_comment[5],
+            'name': sql_comment[6],
+        },
+    }
+
+
+def build_comment_list(sql_comments):
+    comments = []
+    for r in sql_comments:
+        comments.append(build_comment(r))
+    return comments
+
+
+def get_poll_comments(poll_id):
+    cur = db.cursor()
+    sql = '''
+        SELECT * FROM poll_comments
+        JOIN users ON poll_comments.user_id = users.id
+        WHERE poll_comments.poll_id = ?;
+    '''
+    cur.execute(sql, [poll_id])
+    res = cur.fetchall()
+    comments = build_comment_list(res)
+    return comments
 
 
 def build_user(sql_user):

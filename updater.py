@@ -2,6 +2,7 @@ import requests
 import sqlite3
 import time
 import os
+import time
 import random
 
 
@@ -184,6 +185,49 @@ def update_movie_db():
             print('Got Response:', res.status_code, res.reason)
 
 
+def insert_test_comments():
+    db_file = "C:\\Dev\\repo\\CITS3403-Project1-SocialChoice\\data.db"
+    db = sqlite3.connect(db_file, check_same_thread=False)
+    cur = db.cursor()
+    # get all users
+    cur.execute('SELECT * FROM users;')
+    users = build_user_list(cur.fetchall())
+    # get all polls
+    cur.execute('SELECT polls.id FROM polls;')
+    sql_polls = cur.fetchall()
+    polls = []
+    for sqlpoll in sql_polls:
+        polls.append({
+            'id': sqlpoll[0]
+        })
+    # generate some comments
+    sql = '''INSERT INTO poll_comments(
+                poll_id,
+                user_id,
+                body,
+                timestamp) VALUES(?,?,?,?);
+    '''
+    # prepare some lorem ipsum
+    words = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus iaculis vestibulum rhoncus. Donec eu metus eget lorem cursus aliquet. Vestibulum.'
+    words = words.split(' ')
+    words = words * 10
+
+    # add 200 comments of random len by random users to random posts
+    for i in range(200):
+        # generate random comment
+        new_body = ''
+        new_comment_len = random.randint(4, 30)
+        for word_counter in range(new_comment_len):
+            new_body += ' ' + random.choice(words)
+        print('new body is:', new_body)
+        # generate timestamp for comment that is between 0-4days, 0-24hrs, 0-60mins, 0-60secs old
+        day_len = 60 * 60 * 24
+        timestamp_now = int(time.time())
+        timestamp = random.randint(timestamp_now - (day_len * 10), timestamp_now)
+        cur.execute(sql, [random.choice(polls)['id'], random.choice(users)['id'], new_body, timestamp])
+    db.commit()
+
+
 if __name__ == '__main__':
     #update_movie_db()
     #insert_test_users()
@@ -191,5 +235,5 @@ if __name__ == '__main__':
     #db_file = "C:\\Dev\\repo\\CITS3403-Project1-SocialChoice\\data.db"
     #db = sqlite3.connect(db_file, check_same_thread=False)
     #db.execute('drop table poll_votes;')
-    insert_test_poll_votes()
+    insert_test_comments()
     pass
