@@ -4,8 +4,9 @@
         <div>
             <form action="/api/1/comment/new" method="POST">
                 <input name="poll" type="hidden" value="{{ poll.id }}">
-                <input name="body" type="text" placeholder="Write a comment...">
+                <input name="body" type="text" class="form-control input-md" placeholder="Write a comment...">
             </form>
+            <br>
         </div>
         {% for comment in poll_comments %}
         <div class="comment-container">
