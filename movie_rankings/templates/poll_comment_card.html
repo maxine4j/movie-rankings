@@ -4,7 +4,11 @@
         <div>
             <form action="/api/1/comment/new" method="POST">
                 <input name="poll" type="hidden" value="{{ poll.id }}">
+                {% if c.user is not none %}
                 <input name="body" type="text" class="form-control input-md" placeholder="Write a comment...">
+                {% else %}
+                <input disabled name="body" type="text" class="form-control input-md" placeholder="Log in to write a comment...">
+                {% endif %}
             </form>
             <br>
         </div>

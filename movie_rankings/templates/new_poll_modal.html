@@ -29,7 +29,11 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    {% if c.user is not none %}
                     <button type="submit" class="btn btn-primary">Create Poll</button>
+                    {% else %}
+                    <button disabled type="submit" class="btn btn-primary">Log In to Create Poll</button>
+                    {% endif %}
                 </div>
             </form>
         </div>
