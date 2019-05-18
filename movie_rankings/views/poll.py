@@ -21,7 +21,6 @@ def view_all_polls():
 
 @app_poll.route('/poll/<poll_id>')
 def view_poll(poll_id):
-    print('\t\t\t\tpoll_id=', poll_id)
     poll = data.get_poll(poll_id, current_user_id=auth.current_user_id())
     # sort poll choices by vote count
     poll['choices'] = list(poll['choices'].values())
