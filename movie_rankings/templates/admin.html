@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="home-header-container">
+        <div class="home-header">
+            <h1>Admin</h1>
+        </div>
+    </div>
+    <div class="row">
+        <!-- update movies -->
+        <div class="col-sm-4">
+            <div class="card p-2">
+                <div class="card-body">
+                    <h4 class="card-title">Update Movie Database</h4>
+                    <p>Starts background task to fetch new movies from <a href="https://www.themoviedb.org/" target="_blank">The Movie Database.</a></p>
+                    <button class="btn btn-block btn-primary" onclick="admin_updateMovieDB()">Update from The Movie DB</button>
+                </div>
+            </div>
+        </div>
+        <!-- delete users -->
+        <div class="col-sm-4">
+            <div class="card p-2">
+                <div class="card-body">
+                    <h4 class="card-title">Grant Admin</h4>
+                    <p>Grants the currently logged in user administrator status.</p>
+                    <button class="btn btn-block btn-primary" onclick="admin_grantAdmin()">Grant</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
