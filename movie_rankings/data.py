@@ -5,7 +5,8 @@ db_file = "../data.db"
 db = sqlite3.connect(db_file, check_same_thread=False)
 
 
-def init_db():
+def init_db(db_path=db_file):
+    db = sqlite3.connect(db_path, check_same_thread=False)
     db.execute('''
         CREATE TABLE IF NOT EXISTS movies (
             id INTEGER PRIMARY KEY, 
@@ -24,7 +25,8 @@ def init_db():
     db.execute('''
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY,
-            name TEXT
+            name TEXT,
+            admin INTEGER DEFAULT 0
         );
     ''')
     db.execute('''

@@ -17,7 +17,7 @@
             <div class="comment-img-container">
                 <img src="/static/img/avatar.png">
             </div>
-            <p class="comment-header">{{ comment.user.name }} - {{ comment.age.short }}</p>
+            <p class="comment-header"><a href="/user/{{ comment.user.id }}">{{ comment.user.name }}</a> - {{ comment.age.short }}</p>
             <p class="comment-body">{{ comment.body }}</p>
         </div>
         {% endfor %}
