@@ -1,13 +1,19 @@
 <div class="card p-2" >
     <div class="card-body">
         <h5 class="card-title">Comments</h5>
-        {% for comment in poll_comments %}
         <div>
-            <div class="img-container">
-                <img src="/profile.png">
+            <form action="/api/1/comment/new" method="POST">
+                <input name="poll" type="hidden" value="{{ poll.id }}">
+                <input name="body" type="text" placeholder="Write a comment...">
+            </form>
+        </div>
+        {% for comment in poll_comments %}
+        <div class="comment-container">
+            <div class="comment-img-container">
+                <img src="/static/img/avatar.png">
             </div>
-            <p>{{ comment.user.name }} - {{ comment.timestamp }}</p>
-            <p>{{ comment.body }}</p>
+            <p class="comment-header">{{ comment.user.name }} - {{ comment.age.short }}</p>
+            <p class="comment-body">{{ comment.body }}</p>
         </div>
         {% endfor %}
     </div>

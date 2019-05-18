@@ -1,4 +1,5 @@
 import sqlite3
+import datetime
 
 db_file = "../data.db"
 db = sqlite3.connect(db_file, check_same_thread=False)
@@ -115,13 +116,34 @@ def init_db():
 
 
 def build_comment(sql_comment):
+    timestamp = datetime.datetime.fromtimestamp(sql_comment[4])
+    time_delta = datetime.datetime.now() - timestamp
+    time_days = time_delta.days
+    time_hours = time_delta.seconds / 60 / 60
+    time_mins = time_delta.seconds / 60
+    time_secs = time_delta.seconds
+    age_long = timestamp.strftime('%d/%m/%y, %I:%M %p')
+    age_short = 'age_short'
+    if time_days >= 1:
+        age_short = '{:.0f}d'.format(time_days)
+    elif time_hours >= 1:
+        age_short = '{:.0f}h'.format(time_hours)
+    elif time_mins >= 1:
+        age_short = '{:.0f}m'.format(time_mins)
+    elif time_secs >= 1:
+        age_short = '{:.0f}s'.format(time_secs)
+
     # build a comment dict from the supplied query result
     return {
         'id': sql_comment[0],
         'poll_id': sql_comment[1],
         'user_id': sql_comment[2],
         'body': sql_comment[3],
-        'timestamp': sql_comment[4],
+        'timestamp': timestamp,
+        'age': {
+            'long': age_long,
+            'short': age_short,
+        },
         'user': {
             'id': sql_comment[5],
             'name': sql_comment[6],
@@ -478,6 +500,7 @@ def create_poll(cur_user_id, title, desc, choice_movie_ids):
         description)
         VALUES(?, ?, ?);
     ''', [cur_user_id, title, desc])
+    db.commit()
     poll_id = cur.lastrowid
     # create the choices for the poll
     for mid in choice_movie_ids:
@@ -488,3 +511,17 @@ def create_poll(cur_user_id, title, desc, choice_movie_ids):
             VALUES(?, ?);
         ''', [poll_id, mid])
     return poll_id
+
+
+def create_comment(cur_user_id, poll_id, comment_body):
+    cur = db.cursor()
+    cur.execute('''
+        INSERT INTO poll_comments(
+            poll_id,
+            user_id,
+            body,
+            timestamp
+        ) VALUES(?, ?, ?, ?);
+    ''', [poll_id, cur_user_id, comment_body, datetime.datetime.now().timestamp()])
+    db.commit()
+    return cur.lastrowid

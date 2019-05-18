@@ -56,7 +56,7 @@ def search_movies():
     return json.dumps(res)
 
 
-@app_api.route('/api/1/newpoll')
+@app_api.route('/api/1/poll/new')
 def create_poll():
     # check if the user is logged in
     if not auth.is_authenticated():
@@ -75,4 +75,20 @@ def create_poll():
     # remove duplicates
     poll_choices = list(dict.fromkeys(poll_choices))
     poll_id = data.create_poll(auth.current_user_id(), poll_title, poll_desc, poll_choices)
+    return flask.redirect('/poll/{}'.format(poll_id))
+
+
+@app_api.route('/api/1/comment/new', methods=['POST'])
+def new_comment():
+    # check if the user is logged in
+    if not auth.is_authenticated():
+        return json.dumps({
+            'success': False,
+            'message': 'You are not logged in'
+        })
+    comment_body = flask.request.form.get('body')
+    print('comment_body =', comment_body)
+    poll_id = flask.request.form.get('poll')
+    print('poll_id =', poll_id)
+    data.create_comment(auth.current_user_id(), poll_id, comment_body)
     return flask.redirect('/poll/{}'.format(poll_id))
