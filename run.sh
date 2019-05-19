@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 export APP_SECRET_KEY=debug_key
 export FACEBOOK_CLIENTID=_____________USE_PRODUCTION_SITE_SEE_README____________
 export FACEBOOK_SECRET=____________USE_PRODUCTION_SITE_SEE_README____________
