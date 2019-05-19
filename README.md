@@ -141,6 +141,8 @@ Directory Structure:
 
 # Running the application
 
+- You may need to run the application with admin/sudo if it cannot bind to 443. Running on 443 is required to get local facebook login working. If you would like to run the application without facebook login, than you can change the port (and disable adhoc ssl too) in `movie_rankings/core.py` line 37.
+
 ### Windows
 
 1. Run `run.bat`
