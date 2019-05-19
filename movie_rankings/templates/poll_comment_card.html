@@ -19,6 +19,9 @@
             </div>
             <p class="comment-header"><a href="/user/{{ comment.user.id }}">{{ comment.user.name }}</a> - {{ comment.age.short }}</p>
             <p class="comment-body">{{ comment.body }}</p>
+            {% if c.user.admin %}
+            <button class="admin-action btn btn-danger" onclick="admin_removeComment({{ comment.id }})">Remove Comment</button>
+            {% endif %}
         </div>
         {% endfor %}
     </div>

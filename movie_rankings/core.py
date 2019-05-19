@@ -1,6 +1,8 @@
-import flask
-import movie_rankings.data as data
+import sys
 import os
+sys.path.append(os.path.abspath(__file__)[:-len(__file__)])
+import movie_rankings.data as data
+import flask
 import flask_dance.contrib.facebook as facebook
 
 from movie_rankings.views.api import app_api

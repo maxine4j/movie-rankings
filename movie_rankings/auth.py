@@ -39,8 +39,10 @@ def get_user_context(user_id):
     avatar_url = "https://i.imgur.com/IGUApaz.jpg"
     if res is not None and res.ok:
         avatar_url = res.json()['data']['url']
-    return {
-        'name': user['name'],
-        'avatar_url': avatar_url,
-        'id': user['id']
-    }
+    user['avatar_url'] = avatar_url
+    return user
+
+
+def is_admin():
+    current_user = data.get_user(current_user_id())
+    return current_user['admin']

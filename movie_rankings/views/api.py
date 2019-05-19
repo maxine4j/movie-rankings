@@ -78,6 +78,30 @@ def create_poll():
     return flask.redirect('/poll/{}'.format(poll_id))
 
 
+@app_api.route('/api/1/poll/remove/<poll_id>')
+def remove_poll(poll_id):
+    if auth.is_admin():
+        data.remove_poll(poll_id)
+        return json.dumps({
+            'success': True,
+            'message': '',
+        })
+    else:
+        flask.abort(403)
+
+
+@app_api.route('/api/1/comment/remove/<comment_id>')
+def remove_comment(comment_id):
+    if auth.is_admin():
+        data.remove_comment(comment_id)
+        return json.dumps({
+            'success': True,
+            'message': '',
+        })
+    else:
+        flask.abort(403)
+
+
 @app_api.route('/api/1/comment/new', methods=['POST'])
 def new_comment():
     # check if the user is logged in
@@ -92,3 +116,18 @@ def new_comment():
     print('poll_id =', poll_id)
     data.create_comment(auth.current_user_id(), poll_id, comment_body)
     return flask.redirect('/poll/{}'.format(poll_id))
+
+
+@app_api.route('/api/1/admin/grant/',  methods=['POST', 'GET'])
+def grant_admin():
+    # check if the user is logged in
+    if not auth.is_authenticated():
+        return json.dumps({
+            'success': False,
+            'message': 'You are not logged in'
+        })
+    data.grant_admin(auth.current_user_id())
+    return json.dumps({
+        'success': True,
+        'message': ''
+    })

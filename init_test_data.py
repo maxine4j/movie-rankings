@@ -295,9 +295,13 @@ def main():
     generate_users(db)
     generate_favourites(db)
     generate_polls(db)
+    time.sleep(1)
     generate_poll_choices(db)
+    time.sleep(1)
     generate_poll_votes(db)
+    time.sleep(1)
     generate_poll_comments(db)
+    time.sleep(1)
 
 if __name__ == '__main__':
     main()

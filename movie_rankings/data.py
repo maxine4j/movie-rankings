@@ -39,11 +39,13 @@ def init_db(db_path=db_file):
             
             CONSTRAINT fk_users
             FOREIGN KEY (user_id)
-            REFERENCES users (id),
+            REFERENCES users (id)
+            ON DELETE CASCADE,
             
             CONSTRAINT fk_movies
             FOREIGN KEY (movie_id)
             REFERENCES movies (id)
+            ON DELETE CASCADE
         );
     ''')
     db.execute('''
@@ -56,6 +58,7 @@ def init_db(db_path=db_file):
                 CONSTRAINT fk_users
                 FOREIGN KEY (creator_user_id)
                 REFERENCES users (id)
+                ON DELETE CASCADE
             );
         ''')
     db.execute('''
@@ -68,11 +71,13 @@ def init_db(db_path=db_file):
                 
                 CONSTRAINT fk_polls
                 FOREIGN KEY (poll_id)
-                REFERENCES polls (id),
+                REFERENCES polls (id)
+                ON DELETE CASCADE,
                 
                 CONSTRAINT fk_movies
                 FOREIGN KEY (movie_id)
                 REFERENCES movies (id)
+                ON DELETE CASCADE
             );
         ''')
     db.execute('''
@@ -86,15 +91,18 @@ def init_db(db_path=db_file):
 
                     CONSTRAINT fk_polls
                     FOREIGN KEY (poll_id)
-                    REFERENCES polls (id),
+                    REFERENCES polls (id)
+                    ON DELETE CASCADE,
 
                     CONSTRAINT fk_poll_choices
                     FOREIGN KEY (choice_id)
                     REFERENCES poll_choices (id)
+                    ON DELETE CASCADE,
                     
                     CONSTRAINT fk_users
                     FOREIGN KEY (user_id)
                     REFERENCES users (id)
+                    ON DELETE CASCADE
                 );
             ''')
     db.execute('''
@@ -107,11 +115,13 @@ def init_db(db_path=db_file):
 
                     CONSTRAINT fk_polls
                     FOREIGN KEY (poll_id)
-                    REFERENCES polls (id),
+                    REFERENCES polls (id)
+                    ON DELETE CASCADE,
                     
                     CONSTRAINT fk_users
                     FOREIGN KEY (user_id)
                     REFERENCES users (id)
+                    ON DELETE CASCADE
                 );
             ''')
     db.commit()
@@ -178,6 +188,7 @@ def build_user(sql_user):
     return {
         'id': sql_user[0],
         'name': sql_user[1],
+        'admin': bool(sql_user[2])
     }
 
 
@@ -205,6 +216,18 @@ def register_user(facebook_id, facebook_name):
         return True, 'User registered successfully'
     except sqlite3.IntegrityError:
         return False, 'User already registered'
+
+
+def remove_poll(poll_id):
+    cur = db.cursor()
+    cur.execute('DELETE FROM polls WHERE id = ?;', [poll_id])
+    db.commit()
+
+
+def remove_comment(comment_id):
+    cur = db.cursor()
+    cur.execute('DELETE FROM poll_comments WHERE id = ?;', [comment_id])
+    db.commit()
 
 
 def change_poll_vote(user_id, poll_id, choice_id):
@@ -527,3 +550,9 @@ def create_comment(cur_user_id, poll_id, comment_body):
     ''', [poll_id, cur_user_id, comment_body, datetime.datetime.now().timestamp()])
     db.commit()
     return cur.lastrowid
+
+
+def grant_admin(user_id):
+    cur = db.cursor()
+    cur.execute('UPDATE users SET admin = 1 WHERE id = ?', [user_id])
+    db.commit()

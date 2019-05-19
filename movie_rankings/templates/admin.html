@@ -20,16 +20,17 @@
                 </div>
             </div>
         </div>
-        <!-- delete users -->
+        <!-- grant admin -->
         <div class="col-sm-4">
             <div class="card p-2">
                 <div class="card-body">
                     <h4 class="card-title">Grant Admin</h4>
                     <p>Grants the currently logged in user administrator status.</p>
-                    <button class="btn btn-block btn-primary" onclick="admin_grantAdmin()">Grant</button>
+                    <button {% if c.user.admin %} disabled {% endif %} class="btn btn-block btn-primary" onclick="admin_grantAdmin()">Grant</button>
                 </div>
             </div>
         </div>
     </div>
 </div>
+<script src="/static/js/admin.js"></script>
 {% endblock %}
