@@ -2,6 +2,8 @@
 
 Timothy Ings 21716194
 
+# Make sure to visit https://cits3403-p1.tim-ings.com/ to view the site with working facebook login
+
 # Purpose
 
 Provide a platform for users to display their favourite movies and to create polls that other users can vote and comment on.
@@ -67,6 +69,59 @@ Directory Structure:
             |   profile.py  
             |   rankings.py  
             |   search.py  
+
+# Site features
+
+#### Home
+
+- Displays a list of movies sorted by popularity according to our data supplier, https://themoviedb.org
+
+- Click the 'Add to favourites' button at the bottom of a movie card to add that movie to your favourites and push it up the rankings.
+
+#### Rankings
+
+- Displays a table containing the most favourited movies by our site's users.
+
+#### Polls
+
+- Displays currently active, user created polls.
+
+- Clicking the name of a movie will cast your vote in that poll.
+
+- Clicking on a poll's title will take you to its page which contains user comments.
+
+- Clicking on a user's name will take you to their profile.
+
+#### User Profile
+
+- Displays a user's favourited movies.
+
+- Displays polls created by the target user.
+
+- Click the 'Favourites' and 'Polls' buttons in the bottom right of the profile header to change views.
+
+#### Search
+
+- Searches all movies on the site
+
+#### New Poll
+
+- Allows a user to create a poll that other users can vote and comment on
+
+- Click the 'New Poll' button to open the new poll modal
+
+- Enter a title and description
+
+- Click the 'Add Choice' button to add a choice to your poll
+
+- Search for the movie you want to add.
+
+
+# Administrator access
+
+- To access administrator functions, ensure that you have logged in with facebook, navigate to https://cits3403-p1.tim-ings.com/admin and click the grant button. This admin grant function would not exist or only be available to existing admins on a real website.
+
+- Doing this enables new buttons on things like polls and comments that allows you to remove them.
 
 # Setting up the application
 
