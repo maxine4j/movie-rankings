@@ -1,7 +1,7 @@
 import sqlite3
 import datetime
 
-db_file = "../data.db"
+db_file = "data.db"
 db = sqlite3.connect(db_file, check_same_thread=False)
 
 
@@ -30,7 +30,7 @@ def init_db(db_path=db_file):
         );
     ''')
     db.execute('''
-            CREATE TABLE IF NOT EXISTS favourites (
+        CREATE TABLE IF NOT EXISTS favourites (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER,
             movie_id INTEGER,
