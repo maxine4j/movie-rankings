@@ -15,7 +15,7 @@
         {% for comment in poll_comments %}
         <div class="comment-container">
             <div class="comment-img-container">
-                <img src="/static/img/avatar.png">
+                <img alt="user avatar" src="/static/img/avatar.png">
             </div>
             <p class="comment-header"><a href="/user/{{ comment.user.id }}">{{ comment.user.name }}</a> - {{ comment.age.short }}</p>
             <p class="comment-body">{{ comment.body }}</p>
