@@ -1,6 +1,6 @@
 .idea/*
 env/*
-data.db
+#data.db
 data.db-journal
 
 # Byte-compiled / optimized / DLL files
