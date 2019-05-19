@@ -4,7 +4,9 @@ import os
 import time
 import random
 import json
-from movie_rankings.data import init_db
+import psycopg2
+#from movie_rankings.data import init_db
+
 
 # config
 db_file = 'data.db'
@@ -133,6 +135,7 @@ def build_favourites(sql):
 def fetch_movies(db):
     url = "https://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc"
     api_key = os.environ.get('THEMOVIEDB_KEY')
+    cur = db.cursor()
     for i in range(1, int(movies_count / 20)):
         req_url = url + '&api_key=' + api_key + '&page=' + str(i)
         print('Getting page =', i, 'URL =', req_url)
@@ -141,8 +144,8 @@ def fetch_movies(db):
             print('Got Response:', res.status_code, res.reason)
             res_json = res.json()
             for movie in res_json['results']:
-                db.execute('''
-                    INSERT OR IGNORE INTO movies(
+                cur.execute('''
+                    INSERT INTO movies(
                     id, 
                     title, 
                     release_date,
@@ -154,7 +157,7 @@ def fetch_movies(db):
                     vote_count,
                     vote_average,
                     popularity)
-                    VALUES (?,?,?,?,?,?,?,?,?,?,?);
+                    VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);
                     ''', [movie['id'],
                           movie['title'],
                           movie['release_date'],
@@ -173,115 +176,143 @@ def fetch_movies(db):
                     pass
         else:
             print('Got Response:', res.status_code, res.reason)
+    db.commit()
+    cur.close()
 
 
 def generate_users(db):
+    cur = db.cursor()
     for i in range(user_count):
         is_boy = random.choice([True, False])
         if is_boy:
             name = "{} {}".format(random.choice(names['boy']), random.choice(names['last']))
         else:
             name = "{} {}".format(random.choice(names['girl']), random.choice(names['last']))
-        db.execute('INSERT OR IGNORE INTO users(id, name) VALUES (?,?);', [i, name])
+        cur.execute('INSERT INTO users(id, name) VALUES (%s,%s);', [i, name])
         if i % 100 == 0: print('Generated User:', i, name)
     db.commit()
+    cur.close()
     print('\tDONE GENERATING USERS')
 
 
 def generate_polls(db):
-    users = build_users(db.execute('SELECT * FROM users;'))
+    cur = db.cursor()
+    cur.execute('SELECT * FROM users;')
+    users = build_users(cur.fetchall())
     for i in range(poll_count):
         user_id = random.choice(users)['id']
         title = generate_lipsum_text(random.randrange(2, 6)).title()
         desc = generate_lipsum_text(random.randrange(3, 15)).title()
-        db.execute('''
+        cur.execute('''
             INSERT INTO polls(
                 creator_user_id,
                 title,
                 description
-            ) VALUES(?, ?, ?);
+            ) VALUES(%s, %s, %s);
         ''', [user_id, title, desc])
         if i % 100 == 0: print('Generated Poll:', i, title)
     db.commit()
+    cur.close()
     print('\tDONE GENERATING POLLS')
 
 
 def generate_poll_choices(db):
-    polls = build_polls(db.execute('SELECT * FROM polls;'))
-    movies = build_movies(db.execute('SELECT * FROM movies;'))
+    cur = db.cursor()
+    cur.execute('SELECT * FROM polls;')
+    polls = build_polls(cur.fetchall())
+    cur.execute('SELECT * FROM movies;')
+    movies = build_movies(cur.fetchall())
     for i in range(avg_poll_choice_count * poll_count):
         poll_id = random.choice(polls)['id']
         movie_id = random.choice(movies)['id']
-        db.execute('''
-            INSERT OR IGNORE INTO poll_choices(
+        cur.execute('''
+            INSERT INTO poll_choices(
                 poll_id,
                 movie_id
-            ) VALUES(?, ?);
+            ) VALUES(%s, %s) ON CONFLICT DO NOTHING;
         ''', [poll_id, movie_id])
         if i % 100 == 0: print('Generated Poll Choice:', i, poll_id, movie_id)
     db.commit()
+    cur.close()
     print('\tDONE GENERATING POLL CHOICES')
 
 
 def generate_poll_comments(db):
-    polls = build_polls(db.execute('SELECT * FROM polls;'))
-    users = build_users(db.execute('SELECT * FROM users;'))
+    cur = db.cursor()
+    cur.execute('SELECT * FROM polls;')
+    polls = build_polls(cur.fetchall())
+    cur.execute('SELECT * FROM users;')
+    users = build_users(cur.fetchall())
     for i in range(avg_poll_comment_count * poll_count):
         poll_id = random.choice(polls)['id']
         user_id = random.choice(users)['id']
         body = generate_lipsum_text(random.randrange(2, 15))
         timestamp = time.time() - random.randrange(0, 60 * 60 * 24 * 5)
-        db.execute('''
+        cur.execute('''
             INSERT INTO poll_comments(
                 poll_id,
                 user_id,
                 body,
                 timestamp
-            ) VALUES(?, ?, ?, ?);
+            ) VALUES(%s, %s, %s, %s);
         ''', [poll_id, user_id, body, timestamp])
         if i % 100 == 0: print('Generated Poll Comment:', i, body)
     db.commit()
+    cur.close()
     print('\tDONE GENERATING POLL COMMENTS')
 
 
 def generate_poll_votes(db):
-    polls = build_polls(db.execute('SELECT * FROM polls;'))
-    users = build_users(db.execute('SELECT * FROM users;'))
+    cur = db.cursor()
+    cur.execute('SELECT * FROM polls;')
+    polls = build_polls(cur.fetchall())
+    cur.execute('SELECT * FROM users;')
+    users = build_users(cur.fetchall())
     for i in range(avg_poll_vote_count * poll_count):
         poll_id = random.choice(polls)['id']
-        choices = build_poll_choices(db.execute('SELECT * FROM poll_choices WHERE poll_id = ?;', [poll_id]))
+        cur.execute('SELECT * FROM poll_choices WHERE poll_id = %s;', [poll_id])
+        choices = build_poll_choices(cur.fetchall())
+        if len(choices) < 1:
+            print('current poll has no choices...')
+            continue
         choice_id = random.choice(choices)['id']
         user_id = random.choice(users)['id']
-        db.execute('''
-            INSERT OR IGNORE INTO poll_votes(
+        cur.execute('''
+            INSERT INTO poll_votes(
                 poll_id,
                 choice_id,
                 user_id
-            ) VALUES(?, ?, ?);
+            ) VALUES(%s, %s, %s) ON CONFLICT DO NOTHING;
         ''', [poll_id, choice_id, user_id])
         if i % 100 == 0: print('Generated Poll Vote:', i, poll_id, choice_id, user_id)
     db.commit()
+    cur.close()
     print('\tDONE GENERATING POLL VOTES')
 
 
 def generate_favourites(db):
-    users = build_users(db.execute('SELECT * FROM users;'))
-    movies = build_movies(db.execute('SELECT * FROM movies;'))
+    cur = db.cursor()
+    cur.execute('SELECT * FROM users;')
+    users = build_users(cur.fetchall())
+    cur.execute('SELECT * FROM movies;')
+    movies = build_movies(cur.fetchall())
     for i in range(avg_user_fav_count * user_count):
         user_id = random.choice(users)['id']
         movie_id = random.choice(movies)['id']
-        db.execute('''
-            INSERT OR IGNORE INTO favourites(
+        cur.execute('''
+            INSERT INTO favourites(
                 user_id,
                 movie_id
-            ) VALUES(?, ?);
+            ) VALUES(%s, %s) ON CONFLICT DO NOTHING;
         ''', [user_id, movie_id])
         if i % 100 == 0: print('Generated Favourite:', i, user_id, movie_id)
     db.commit()
+    cur.close()
     print('\tDONE GENERATING FAVOURITES')
 
 
 def drop_all_but_movies(db):
+    return False
     db.execute('DROP TABLE IF EXISTS favourites;')
     db.execute('DROP TABLE IF EXISTS poll_choices;')
     db.execute('DROP TABLE IF EXISTS poll_comments;')
@@ -291,10 +322,11 @@ def drop_all_but_movies(db):
 
 
 def main():
-    db = sqlite3.connect(db_file, check_same_thread=False)
-    drop_all_but_movies(db)
-    init_db(db_file)
-    fetch_movies(db) # This can take a while
+    #db = sqlite3.connect(db_file, check_same_thread=False)
+    db = psycopg2.connect('dbname=tim user=tim')
+    #drop_all_but_movies(db)
+    #init_db(db_file)
+    #fetch_movies(db) # This can take a while
     generate_users(db)
     generate_favourites(db)
     generate_polls(db)

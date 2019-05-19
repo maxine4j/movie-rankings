@@ -1,11 +1,14 @@
 import sqlite3
 import datetime
+import psycopg2
 
-db_file = "../data.db"
-db = sqlite3.connect(db_file, check_same_thread=False)
+#db_file = "../data.db"
+#db = sqlite3.connect(db_file, check_same_thread=False)
+db = psycopg2.connect('dbname=tim user=tim')
 
 
-def init_db(db_path=db_file):
+def init_db(db_path='../data.db'):
+    return False
     db = sqlite3.connect(db_path, check_same_thread=False)
     db.execute('''
         CREATE TABLE IF NOT EXISTS movies (
@@ -175,7 +178,7 @@ def get_poll_comments(poll_id):
     sql = '''
         SELECT * FROM poll_comments
         JOIN users ON poll_comments.user_id = users.id
-        WHERE poll_comments.poll_id = ?;
+        WHERE poll_comments.poll_id = %s;
     '''
     cur.execute(sql, [poll_id])
     res = cur.fetchall()
@@ -196,7 +199,7 @@ def get_user(user_id):
     # returns a dict representing the user with the supplied id
     cur = db.cursor()
     cur.execute('''
-        SELECT * FROM users WHERE id = ? LIMIT 1;
+        SELECT * FROM users WHERE id = %s LIMIT 1;
         ''', [user_id])
     res = cur.fetchone()
     if res is None:
@@ -210,7 +213,7 @@ def register_user(facebook_id, facebook_name):
     try:
         cur.execute('''
             INSERT INTO users(id, name)
-            VALUES (?, ?);
+            VALUES (%s, %s);
             ''', [facebook_id, facebook_name])
         db.commit()
         return True, 'User registered successfully'
@@ -220,13 +223,13 @@ def register_user(facebook_id, facebook_name):
 
 def remove_poll(poll_id):
     cur = db.cursor()
-    cur.execute('DELETE FROM polls WHERE id = ?;', [poll_id])
+    cur.execute('DELETE FROM polls WHERE id = %s;', [poll_id])
     db.commit()
 
 
 def remove_comment(comment_id):
     cur = db.cursor()
-    cur.execute('DELETE FROM poll_comments WHERE id = ?;', [comment_id])
+    cur.execute('DELETE FROM poll_comments WHERE id = %s;', [comment_id])
     db.commit()
 
 
@@ -234,9 +237,11 @@ def change_poll_vote(user_id, poll_id, choice_id):
     # adds or changes vote for a given poll/user
     cur = db.cursor()
     cur.execute('''
-            INSERT OR REPLACE INTO poll_votes(poll_id, choice_id, user_id)
-            VALUES (?, ?, ?);
-            ''', [poll_id, choice_id, user_id])
+            INSERT INTO poll_votes(poll_id, choice_id, user_id)
+            VALUES (%s, %s, %s)
+            ON CONFLICT (poll_id, user_id)
+            DO UPDATE SET choice_id = %s;
+            ''', [poll_id, choice_id, user_id, choice_id])
     db.commit()
 
 
@@ -291,12 +296,16 @@ def build_poll_dicts(sql_res, current_user_id=None):
     if current_user_id:
         cur = db.cursor()
         cur.execute('''
-                SELECT * FROM poll_votes WHERE user_id = ?;
+                SELECT * FROM poll_votes WHERE user_id = %s;
             ''', [current_user_id])
         for r in cur.fetchall():
             poll_id = r[1]
             choice_id = r[2]
             if poll_id in polls:
+                #print('-------------------poll_id =', poll_id)
+                #print('-------------------choice_id =', choice_id)
+                #print('-------------------polls[poll_id] =', polls[poll_id])
+                #print('-------------------polls[poll_id][choices] =', polls[poll_id]['choices'])
                 polls[poll_id]['choices'][choice_id]['user_voted'] = True
                 polls[poll_id]['selected_choice_id'] = choice_id
     return polls
@@ -319,7 +328,7 @@ def get_poll(poll_id, current_user_id=None):
         ) AS cnt ON cnt.choice_id = poll_choices.id
         LEFT JOIN movies ON poll_choices.movie_id = movies.id
         JOIN users ON users.id = polls.creator_user_id
-        WHERE poll_id = ?;
+        WHERE poll_id = %s;
     '''
     cur.execute(sql, [poll_id])
     res = cur.fetchall()
@@ -351,7 +360,7 @@ def get_polls(current_user_id=None, target_user_id=None):
         JOIN users ON users.id = polls.creator_user_id
     '''
     if target_user_id:
-        sql += " WHERE polls.creator_user_id = ?;"
+        sql += " WHERE polls.creator_user_id = %s;"
         cur.execute(sql, [target_user_id])
     else:
         sql += ';'
@@ -365,8 +374,8 @@ def add_favourite(user_id, movie_id):
     # adds a favourite for a given movie/user
     cur = db.cursor()
     cur.execute('''
-        INSERT OR REPLACE INTO favourites(user_id, movie_id)
-        VALUES (?, ?);
+        INSERT INTO favourites(user_id, movie_id)
+        VALUES (%s, %s);
         ''', [user_id, movie_id])
     db.commit()
 
@@ -376,7 +385,7 @@ def remove_favourite(user_id, movie_id):
     cur = db.cursor()
     cur.execute('''
         DELETE FROM favourites
-        WHERE user_id = ? AND movie_id = ?;
+        WHERE user_id = %s AND movie_id = %s;
         ''', [user_id, movie_id])
     db.commit()
 
@@ -384,7 +393,7 @@ def remove_favourite(user_id, movie_id):
 def toggle_favourite(user_id, movie_id):
     # toggles a favourite for a given movie/user
     cur = db.cursor()
-    cur.execute('SELECT * FROM favourites WHERE movie_id = ? AND user_id = ? LIMIT 1;', [movie_id, user_id])
+    cur.execute('SELECT * FROM favourites WHERE movie_id = %s AND user_id = %s LIMIT 1;', [movie_id, user_id])
     res = cur.fetchone()
     if res:
         remove_favourite(user_id, movie_id)
@@ -402,7 +411,7 @@ def get_fav_movies(user_id):
         cur.execute('''
                 SELECT *
                 FROM movies JOIN favourites ON movies.id = favourites.movie_id 
-                WHERE favourites.user_id = ?;
+                WHERE favourites.user_id = %s;
                 ''', [user_id])
         for x in cur.fetchall():
             fav_movies.append(build_movie(x, False))
@@ -414,8 +423,8 @@ def add_fav_count(movies):
     for m in movies:
         cur.execute('''
             SELECT COUNT(*) as fav_count
-            FROM favourites WHERE movie_id = ?
-            GROUP BY favourites.movie_id ;
+            FROM favourites WHERE movie_id = %s
+            GROUP BY favourites.movie_id;
         ''', [m['id']])
         res = cur.fetchone()
         if res:
@@ -470,11 +479,11 @@ def search_movies(terms, current_user_id=None):
     sql = '''
         SELECT movies.*, COUNT(favourites.movie_id) as fav_count 
         FROM movies LEFT JOIN favourites ON movies.id = favourites.movie_id
-        WHERE title LIKE ? 
+        WHERE title LIKE %s 
         '''
     if len(terms) > 1:
         for i in range(len(terms) - 1):
-            sql += 'AND title LIKE ? '
+            sql += 'AND title LIKE %s '
     sql += '''
         GROUP BY movies.id
         ORDER BY popularity DESC
@@ -515,11 +524,12 @@ def get_popular_movies(current_user_id=None):
 
 def get_all_movies():
     cur = db.cursor()
-    cur.execute('SELECT *, "null" FROM movies;')
+    cur.execute('SELECT *, \'null\' FROM movies;')
     return build_movie_list(cur.fetchall())
 
 
 def create_poll(cur_user_id, title, desc, choice_movie_ids):
+    print(choice_movie_ids)
     cur = db.cursor()
     # create the poll
     cur.execute('''
@@ -527,17 +537,18 @@ def create_poll(cur_user_id, title, desc, choice_movie_ids):
         creator_user_id,
         title,
         description)
-        VALUES(?, ?, ?);
+        VALUES(%s, %s, %s)
+        RETURNING id;
     ''', [cur_user_id, title, desc])
     db.commit()
-    poll_id = cur.lastrowid
+    poll_id = cur.fetchone()[0]
     # create the choices for the poll
     for mid in choice_movie_ids:
         cur.execute('''
             INSERT INTO poll_choices(
             poll_id,
             movie_id)
-            VALUES(?, ?);
+            VALUES(%s, %s);
         ''', [poll_id, mid])
     return poll_id
 
@@ -550,7 +561,7 @@ def create_comment(cur_user_id, poll_id, comment_body):
             user_id,
             body,
             timestamp
-        ) VALUES(?, ?, ?, ?);
+        ) VALUES(%s, %s, %s, %s);
     ''', [poll_id, cur_user_id, comment_body, datetime.datetime.now().timestamp()])
     db.commit()
     return cur.lastrowid
@@ -558,5 +569,6 @@ def create_comment(cur_user_id, poll_id, comment_body):
 
 def grant_admin(user_id):
     cur = db.cursor()
-    cur.execute('UPDATE users SET admin = 1 WHERE id = ?', [user_id])
+    cur.execute('UPDATE users SET admin = 1 WHERE id = %s', [user_id])
     db.commit()
+
