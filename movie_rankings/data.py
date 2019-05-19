@@ -265,6 +265,10 @@ def build_poll_dicts(sql_res, current_user_id=None):
         if polls[poll_id]['max_vote_count'] < vote_count:
             polls[poll_id]['max_vote_count'] = vote_count
         polls[poll_id]['total_vote_count'] += vote_count
+        if r[10]:
+            year = r[10].split('-')[0]
+        else:
+            year = '0000'
         polls[poll_id]['choices'][poll_choice_id] = {
             'id': poll_choice_id,
             'vote_count': vote_count,
@@ -272,7 +276,7 @@ def build_poll_dicts(sql_res, current_user_id=None):
                 'id': r[5],
                 'title': r[9],
                 'release_date': r[10],
-                'year': r[10].split('-')[0],
+                'year': year,
                 'overview': r[11],
                 'language': r[12],
                 'poster_url': r[13],
