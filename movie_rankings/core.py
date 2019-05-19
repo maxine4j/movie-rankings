@@ -1,22 +1,20 @@
-import sys
 import os
-sys.path.append(os.path.abspath(__file__)[:-len(__file__)])
-import movie_rankings.data as data
+import data
 import flask
 import flask_dance.contrib.facebook as facebook
 
-from movie_rankings.views.api import app_api
-from movie_rankings.views.index import app_index
-from movie_rankings.views.profile import app_profile
-from movie_rankings.views.rankings import app_rankings
-from movie_rankings.views.search import app_search
-from movie_rankings.views.poll import app_poll
-from movie_rankings.views.admin import app_admin
+from views.api import app_api
+from views.index import app_index
+from views.profile import app_profile
+from views.rankings import app_rankings
+from views.search import app_search
+from views.poll import app_poll
+from views.admin import app_admin
 
 
 # create and set up flask app
 app = flask.Flask(__name__, static_url_path='/static')
-app.secret_key = 'debug_key'
+app.secret_key = os.environ.get('APP_SECRET_KEY')
 # set up facebook oauth2 login
 blueprint = facebook.make_facebook_blueprint(
     client_id=os.environ.get('FACEBOOK_CLIENTID'),
@@ -35,9 +33,5 @@ app.register_blueprint(app_admin)
 data.init_db()
 
 
-def main():
-    app.run(host='127.0.0.1', port='443', debug=True, ssl_context='adhoc')
-
-
 if __name__ == '__main__':
-    main()
+    app.run(host='127.0.0.1', port='443', debug=True, ssl_context='adhoc')

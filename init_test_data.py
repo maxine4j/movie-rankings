@@ -14,7 +14,7 @@ avg_poll_choice_count = 8
 avg_poll_comment_count = 15
 avg_poll_vote_count = 50
 avg_user_fav_count = 30
-movies_count = 1000
+movies_count = 10000
 
 
 def load_names(path):
@@ -167,7 +167,10 @@ def fetch_movies(db):
                           movie['vote_average'],
                           movie['popularity']])
                 db.commit()
-                print('Added movie', movie['title'], movie['release_date'], 'to database.')
+                try:
+                    print('Added movie', movie['title'], movie['release_date'], 'to database.')
+                except:
+                    pass
         else:
             print('Got Response:', res.status_code, res.reason)
 
@@ -291,7 +294,7 @@ def main():
     db = sqlite3.connect(db_file, check_same_thread=False)
     drop_all_but_movies(db)
     init_db(db_file)
-    #fetch_movies(db) # This can take a while
+    fetch_movies(db) # This can take a while
     generate_users(db)
     generate_favourites(db)
     generate_polls(db)

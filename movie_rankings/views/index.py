@@ -1,6 +1,6 @@
 import flask
-import movie_rankings.data as data
-import movie_rankings.auth as auth
+import data
+import auth
 
 
 app_index = flask.Blueprint('app_index', __name__)

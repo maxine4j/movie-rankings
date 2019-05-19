@@ -1,7 +1,7 @@
 import flask
 import json
-import movie_rankings.data as data
-import movie_rankings.auth as auth
+import data
+import auth
 
 
 app_poll = flask.Blueprint('app_poll', __name__)

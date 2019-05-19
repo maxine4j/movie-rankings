@@ -1,6 +1,6 @@
 import flask
 import requests
-import movie_rankings.data as data
+import data
 from flask_dance.contrib.facebook import facebook
 
 
