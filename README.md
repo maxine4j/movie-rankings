@@ -131,22 +131,22 @@ Directory Structure:
 
 - If you want to be able to login when running the application locally, you will need to create a [facebook login application](https://developers.facebook.com/) and add an entry to your hosts file that redirects a real domain (such as dev.tim-ings.com) to 127.0.0.1. Ensure this domain is added to your facebook apps valid oauth redirect uris. Set environment variables `FACEBOOK_CLIENTID` and `FACEBOOK_SECRET` with those from your facebook app.
 
-### Windows
+##### Windows
 
 1. Run `setup.bat`
 
-## Mac/Linux
+##### Mac/Linux
 
 1. Run `setup.sh`
 
 # Running the application
 
-- You may need to run the application with admin/sudo if it cannot bind to 443. Running on 443 is required to get local facebook login working. If you would like to run the application without facebook login, than you can change the port (and disable adhoc ssl too) in `movie_rankings/core.py` line 37.
+- You may need to run the application with admin/sudo if it cannot bind to port 443. Running on port 443 is required to get local facebook login working with the hosts file trick. If you would like to run the application without facebook login, than you can change the port (and disable adhoc ssl too) in `movie_rankings/core.py` line 37.
 
-### Windows
+##### Windows
 
 1. Run `run.bat`
 
-## Mac/Linux
+##### Mac/Linux
 
 1. Run `run.sh`
