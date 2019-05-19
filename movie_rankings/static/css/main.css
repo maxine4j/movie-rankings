@@ -84,8 +84,7 @@
 
 .profile-tabs {
     display: block;
-    height: 70px;
-    float: bottom-right;
+    height: 70px; 
     margin: auto;
     margin-right: 0;
 }
