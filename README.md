@@ -72,9 +72,9 @@ Directory Structure:
 
 - The application comes with a sample database. If you would like to generate your own, then you will need an api key from [The Movie DB](https://themoviedb.org). Set this as an environment variable `THEMOVIEDB_KEY` and run `init_test_data.py`. You can modify the variables at the top of the file to specify the generated characteristics of the data.
 
-- If you want to be able to login when running the application locally, you will need to create a [facebook login application](https://developers.facebook.com/) and add an entry to your hosts file that redirects a real domain (such as dev.tim-ings.com) to 127.0.0.1. Ensure this domain is added to your facebook apps valid oauth redirect uris. Set environment variables `FACEBOOK_CLIENTID` and `FACEBOOK_SECRET` with those from your facebook app.
-
 - The application is hosted at https://cits3403-p1.tim-ings.com with working facebook login. (Production site uses nginx, uwsgi, and postgres)
+
+- If you want to be able to login when running the application locally, you will need to create a [facebook login application](https://developers.facebook.com/) and add an entry to your hosts file that redirects a real domain (such as dev.tim-ings.com) to 127.0.0.1. Ensure this domain is added to your facebook apps valid oauth redirect uris. Set environment variables `FACEBOOK_CLIENTID` and `FACEBOOK_SECRET` with those from your facebook app.
 
 ### Windows
 
