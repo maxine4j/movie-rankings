@@ -1,36 +1,150 @@
-# Web Application Project: Social Choice
+# CITS3403-Project1-SocialChoice
 
-Due 12pm, May 20, 2019
+Timothy Ings 21716194
 
-This project is worth 30% of your final grade in the unit must be done in pairs.
+# Make sure to visit https://cits3403-p1.tim-ings.com/ to view the site with working facebook login
 
-## Project Description
+# Purpose
 
-For this project you are required to build a multi-user web application. The application should be written using HTML, CSS, Flask, AJAX, JQuery, and Bootstrap. The application should perform some kind of voting or ranking activity (social choice), based on the inputs from users. The context and the type of social choice mechanism is up to you.
+Provide a platform for users to display their favourite movies and to create polls that other users can vote and comment on.
 
-Example contexts you could use are:
+# Architecture
 
-- Music/Movie Polls (e.g. find the best anime movie of the 21st century)
-- Ranking recipes (e.g. find the best lassangne recipe on the web).
-- Find the best units at UWA.
+The application is a standard flask application. The entry point is `core.py` and it registers multiple blueprints that contain the rest of the application's views. The views can be found in the views directory. Each python file contains one or more routes that renders a template from the templates directory or handles an api call.
 
-The types of social choice mechanism you could use are
+The files in the root of this project include setup and run scripts for both windows and mac/linux, pip requirements, and an sqlite3 database containing sample data. Additionally, the script as well as the names and base lorem ipsum used to generate said sample data is also included.
 
-- First past the post voting
-- Preferential voting
-- Elo rankings (as used in chess leaderboards)
-- Page rank type graph algorithms
+Directory Structure:
 
-The web application should be styled to be interesting and engaging for a user in the selected context. It should offer several views including:
+    |   data.db (Sample data)
+    |   init_test_data.py (Script that generates sample data, requires themoviedb.org api key, see production branch on github for postgres version)
+    |   lipsum.txt (Lorem ipsum text used to generate test sample data)
+    |   names.json (Top 1000 boy/girl/last names, used to generate sample data)
+    |   README.md
+    |   requirements.txt (pip requirements file) 
+    |   run.bat (Script to run the application on windows)
+    |   run.sh (Script to run the application on mac/linux)
+    |   setup.bat (Script to set up the applications environment on windows)
+    |   setup.sh (Script to set up the applications environment on mac/linux)
+    |  
+    +---+ movie_rankings  
+        |   auth.py (Contains functions that handle user authentication and session)
+        |   core.py (Entry point for the application)
+        |   data.py (Contains functions that access the database, see production branch on github for postgres version)
+        |   movie_rankings.ini (uwsgi config file for production)
+        |   wsgi.py (uwsgi entry point for production)
+        |  
+        +---+ static  
+        |   +---+ css  
+        |   |       main.css  
+        |   |  
+        |   +---+ img  
+        |   |       avatar.png (Default user avatar image)
+        |   |  
+        |   +---+ js  
+        |           admin.js (Contains admin functions)
+        |           main.js  
+        |  
+        +---+ templates (Contains Jinja templates used in application views)
+        |       admin.html
+        |       base.html (Base template for all others)
+        |       index.html  
+        |       movie_card.html (Template that is included in other templates to represent a single movie)
+        |       new_poll_modal.html  
+        |       poll.html  
+        |       polls.html  
+        |       poll_card.html (Template that is included in other templates to represent a single poll)
+        |       poll_comment_card.html (Template that is included in other templates to represent a single polls comments)
+        |       profile_favourites.html  
+        |       profile_header.html  
+        |       profile_polls.html  
+        |       rankings.html  
+        |       search.html  
+        |  
+        +---+ views  
+            |   admin.py
+            |   api.py (Contains functions accessed via AJAX)
+            |   index.py
+            |   poll.py  
+            |   profile.py  
+            |   rankings.py  
+            |   search.py  
 
-1. An adminstrator view, that can add and delete polls, delete responses, and add and delete users.
-2. A user view that can view polls and current standings, and submit responses to polls.
-3. A general view that can just view polls
+# Site features
 
-In addition to the web application, you should create a private GitHub project that includes a readme describing
+#### Home
 
-1. the purpose of the web application, explaining both the context and the social choice mechanism used.
-2. the architecture of the web application
-3. describe how to launch the web application.
-4. describe some unit tests for the web application, and how to run them.
-5. Include commit logs, showing contributions and review from both contributing students
+- Displays a list of movies sorted by popularity according to our data supplier, https://themoviedb.org
+
+- Click the 'Add to favourites' button at the bottom of a movie card to add that movie to your favourites and push it up the rankings.
+
+#### Rankings
+
+- Displays a table containing the most favourited movies by our site's users.
+
+#### Polls
+
+- Displays currently active, user created polls.
+
+- Clicking the name of a movie will cast your vote in that poll.
+
+- Clicking on a poll's title will take you to its page which contains user comments.
+
+- Clicking on a user's name will take you to their profile.
+
+#### User Profile
+
+- Displays a user's favourited movies.
+
+- Displays polls created by the target user.
+
+- Click the 'Favourites' and 'Polls' buttons in the bottom right of the profile header to change views.
+
+#### Search
+
+- Searches all movies on the site
+
+#### New Poll
+
+- Allows a user to create a poll that other users can vote and comment on
+
+- Click the 'New Poll' button to open the new poll modal
+
+- Enter a title and description
+
+- Click the 'Add Choice' button to add a choice to your poll
+
+- Search for the movie you want to add.
+
+
+# Administrator access
+
+- To access administrator functions, ensure that you have logged in with facebook, navigate to https://cits3403-p1.tim-ings.com/admin and click the grant button. This admin grant function would not exist or only be available to existing admins on a real website.
+
+- Doing this enables new buttons on things like polls and comments that allows you to remove them.
+
+# Setting up the application
+
+- The application comes with a sample database. If you would like to generate your own, then you will need an api key from [The Movie DB](https://themoviedb.org). Set this as an environment variable `THEMOVIEDB_KEY` and run `init_test_data.py`. You can modify the variables at the top of the file to specify the characteristics of the generated data.
+
+- The application is hosted at https://cits3403-p1.tim-ings.com with working facebook login. (Production site uses nginx, uwsgi, and postgres)
+
+- If you want to be able to login when running the application locally, you will need to create a [facebook login application](https://developers.facebook.com/) and add an entry to your hosts file that redirects a real domain (such as dev.tim-ings.com) to 127.0.0.1. Ensure this domain is added to your facebook apps valid oauth redirect uris. Set environment variables `FACEBOOK_CLIENTID` and `FACEBOOK_SECRET` with those from your facebook app.
+
+### Windows
+
+1. Run `setup.bat`
+
+## Mac/Linux
+
+1. Run `setup.sh`
+
+# Running the application
+
+### Windows
+
+1. Run `run.bat`
+
+## Mac/Linux
+
+1. Run `run.sh`
