@@ -84,7 +84,11 @@
 
 .profile-tabs {
     display: block;
+<<<<<<< HEAD
+    height: 70px;
+=======
     height: 70px; 
+>>>>>>> 842a2d845c6d06d85bb92432c3afa6f6ff0f14d4
     margin: auto;
     margin-right: 0;
 }
