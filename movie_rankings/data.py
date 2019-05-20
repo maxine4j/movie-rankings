@@ -479,7 +479,7 @@ def search_movies(terms, current_user_id=None):
     sql = '''
         SELECT movies.*, COUNT(favourites.movie_id) as fav_count 
         FROM movies LEFT JOIN favourites ON movies.id = favourites.movie_id
-        WHERE title LIKE %s 
+        WHERE title ILIKE %s 
         '''
     if len(terms) > 1:
         for i in range(len(terms) - 1):
