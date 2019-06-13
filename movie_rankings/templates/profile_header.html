@@ -1,10 +1,10 @@
 <div class="profile-header">
-    <div class="profile-img-container">
-        <img alt="user avatar" src="{{ c.target_user.avatar_url }}">
-    </div>
-    <h1 class="profile-name" >{{ c.target_user.name }}</h1>
     <div class="profile-tabs">
         <a class="profile-tab-link" href="/user/{{ c.target_user.id }}/polls">Polls</a>
         <a class="profile-tab-link" href="/user/{{ c.target_user.id }}">Favourites</a>
     </div>
+    <div class="profile-img-container">
+        <img alt="user avatar" src="{{ c.target_user.avatar_url }}">
+    </div>
+    <h1 class="profile-name" >{{ c.target_user.name }}</h1>
 </div>
