@@ -1,8 +1,4 @@
-# CITS3403-Project1-SocialChoice
-
-Timothy Ings 21716194
-
-# Make sure to visit https://cits3403-p1.tim-ings.com/ to view the site with working facebook login
+# Movie Rankings
 
 # Purpose
 
