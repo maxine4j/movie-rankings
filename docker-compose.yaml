@@ -2,8 +2,8 @@ version: '3'
 
 services:
   app:
-    container_name: movierankings_app
-    hostname: movierankings_app
+    container_name: movierankings
+    hostname: movierankings
     restart: always
     build: ./
     env_file:
