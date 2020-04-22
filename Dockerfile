@@ -7,6 +7,6 @@ RUN python -m pip install -r requirements.txt
 
 COPY ./uwsgi.ini ./
 COPY ./data.db ./
-COPY ./nginx.conf /etc/nginx/conf.d/nginx.conf
+COPY ./nginx.conf ./
 
 COPY ./movie_rankings ./
