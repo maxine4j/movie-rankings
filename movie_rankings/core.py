@@ -14,6 +14,7 @@ from views.admin import app_admin
 
 # create and set up flask app
 app = flask.Flask(__name__, static_url_path='/static')
+app.config.update(dict(PREFERRED_URL_SCHEME = 'https'))
 app.secret_key = os.environ.get('APP_SECRET_KEY')
 # set up facebook oauth2 login
 blueprint = facebook.make_facebook_blueprint(
