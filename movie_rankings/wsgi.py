@@ -6,12 +6,8 @@ class ReverseProxied(object):
         self.app = app
 
     def __call__(self, environ, start_response):
-        scheme = environ.get('HTTP_X_FORWARDED_PROTO')
-        if scheme:
-            environ['wsgi.url_scheme'] = scheme
+        environ['wsgi.url_scheme'] = 'https'
         return self.app(environ, start_response)
 
 
-if __name__ == "__main__":
-    app.wsgi_app = ReverseProxied(app.wsgi_app)
-    app.run()
+application.wsgi_app = ReverseProxied(application.wsgi_app)
