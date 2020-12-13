@@ -1,4 +1,4 @@
 apiVersion: v2
 description: Movie Rankings
-name: movierankings
+name: movie-rankings
 version: 1.0.0

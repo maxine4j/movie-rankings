@@ -35,4 +35,4 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ghcr.io/tim-ings/movierankings:${{ steps.vars.outputs.tag }}
+          tags: ghcr.io/tim-ings/movie-rankings:${{ steps.vars.outputs.tag }}
