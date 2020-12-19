@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: {{ .Chart.Name }}
   labels:
-    svc: {{ .Chart.Name }}
+    appService: {{ $.Values.appService }}
 spec:
   ports:
   - protocol: TCP
