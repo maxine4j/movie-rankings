@@ -1,3 +1,2 @@
 port: 9000
-appService: movies-tim-ings-com
 image: ghcr.io/tim-ings/movie-rankings
