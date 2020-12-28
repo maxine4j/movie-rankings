@@ -1,3 +1,2 @@
 port: 9000
-nodePort: 30051
 image: ghcr.io/tim-ings/movie-rankings
