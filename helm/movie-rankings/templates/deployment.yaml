@@ -17,3 +17,24 @@ spec:
           image: "{{ .Values.image }}:{{ .Chart.Version }}"
           ports:
             - containerPort: {{ .Values.port }}
+          env:
+            - name: APP_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Chart.Name }}
+                  key: app-secret-key
+            - name: FACEBOOK_CLIENTID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Chart.Name }}
+                  key: facebook-clientid
+            - name: FACEBOOK_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Chart.Name }}
+                  key: facebook-secret
+            - name: THEMOVIEDB_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Chart.Name }}
+                  key: themoviedb-key

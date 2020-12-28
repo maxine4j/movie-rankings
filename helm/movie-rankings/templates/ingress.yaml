@@ -8,10 +8,10 @@ metadata:
 spec:
   tls:
   - hosts:
-    - movies.tim-ings.com
+    - {{ $.Values.host }}
     secretName: "{{ .Chart.Name }}-tls"
   rules:
-  - host: movies.tim-ings.com
+  - host: {{ $.Values.host }}
     http:
       paths:
       - path: /
