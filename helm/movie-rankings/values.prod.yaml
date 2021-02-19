@@ -1,4 +1,4 @@
 port: 9000
 image: ghcr.io/tim-ings/movie-rankings
 host: movies.tim-ings.com
-secret: prod/cluster0/json
+secret: prod/cluster/json
